@@ -230,10 +230,8 @@ resource "aws_ecs_service" "app" {
     assign_public_ip = false
   }
   
-  deployment_configuration {
-    maximum_percent         = 200
-    minimum_healthy_percent = 100
-  }
+  deployment_maximum_percent         = 200
+  deployment_minimum_healthy_percent = 100
   
   # Optional: Add load balancer configuration here
 }

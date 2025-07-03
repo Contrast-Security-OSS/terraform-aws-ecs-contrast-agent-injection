@@ -11,7 +11,7 @@ locals {
   init_mount_path = "/mnt/contrast"
   
   # Generate a unique server name if not provided
-  contrast_server_name = var.server_name != "" ? var.server_name : "${var.application_name}-${data.aws_region.current.name}"
+  contrast_server_name = var.server_name != "" ? var.server_name : "${var.application_name}-${data.aws_region.current.id}"
   
   # Build the init container definition
   init_container = var.enabled ? [{
@@ -36,7 +36,7 @@ locals {
       logDriver = "awslogs"
       options = {
         "awslogs-group"         = var.log_group_name != "" ? var.log_group_name : "/ecs/contrast-init"
-        "awslogs-region"        = data.aws_region.current.name
+        "awslogs-region"        = data.aws_region.current.id
         "awslogs-stream-prefix" = "contrast-init"
       }
     }
