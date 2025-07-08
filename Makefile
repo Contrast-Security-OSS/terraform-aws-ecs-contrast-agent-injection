@@ -1,6 +1,6 @@
 # Makefile for ECS Contrast Agent Sidecar
 
-.PHONY: help init validate plan apply destroy clean test docs docker fmt security install-tools check-prereqs
+.PHONY: help init validate plan apply destroy clean test docs docker fmt security security-module security-module-detailed security-module-baseline install-tools check-prereqs
 .PHONY: test-setup test-unit test-integration test-e2e test-all test-cleanup test-cleanup-force test-cleanup-old test-cleanup-dry-run test-coverage test-quick
 .PHONY: test-proxy test-performance test-stability test-multi-region test-chaos test-upgrade
 .PHONY: ci-test ci-test-full dev-setup lint-terraform check-env debug-test
@@ -47,6 +47,12 @@ help:
 	@echo "CI/CD:"
 	@echo "  ci-test          - Run CI tests (unit + integration)"
 	@echo "  ci-test-full     - Run full CI test suite"
+	@echo ""
+	@echo "Security:"
+	@echo "  security               - Run security scan on entire project"
+	@echo "  security-module        - Run security scan on terraform-module only"
+	@echo "  security-module-detailed - Run detailed security scan on terraform-module with SARIF output"
+	@echo "  security-module-baseline - Create security baseline for terraform-module"
 	@echo ""
 	@echo "Documentation:"
 	@echo "  docs      - Generate documentation"
@@ -107,7 +113,43 @@ fmt:
 security:
 	@echo "Running security scan..."
 	which tfsec > /dev/null 2>&1 && tfsec . || echo "tfsec not installed"
-	which checkov > /dev/null 2>&1 && checkov -d . --framework terraform || echo "checkov not installed"
+	@if [ -f .venv/bin/activate ]; then \
+		echo "Activating virtual environment..."; \
+		. .venv/bin/activate && checkov -d . --framework terraform; \
+	else \
+		which checkov > /dev/null 2>&1 && checkov -d . --framework terraform || echo "checkov not installed and no .venv found"; \
+	fi
+
+# Security scan for terraform module only
+security-module:
+	@echo "Running security scan on terraform-module only..."
+	which tfsec > /dev/null 2>&1 && tfsec terraform-module/ || echo "tfsec not installed"
+	@if [ -f .venv/bin/activate ]; then \
+		echo "Activating virtual environment..."; \
+		cd terraform-module && . ../.venv/bin/activate && checkov --config-file .checkov.yml; \
+	else \
+		which checkov > /dev/null 2>&1 && checkov -d terraform-module/ --config-file terraform-module/.checkov.yml || echo "checkov not installed and no .venv found"; \
+	fi
+
+# Security scan with detailed output for terraform module
+security-module-detailed:
+	@echo "Running detailed security scan on terraform-module..."
+	@if [ -f .venv/bin/activate ]; then \
+		echo "Activating virtual environment..."; \
+		cd terraform-module && . ../.venv/bin/activate && checkov --config-file .checkov.yml -o cli -o sarif --output-file-path console,checkov-results.sarif; \
+	else \
+		which checkov > /dev/null 2>&1 && checkov -d terraform-module/ --config-file terraform-module/.checkov.yml -o cli -o sarif --output-file-path console,terraform-module/checkov-results.sarif || echo "checkov not installed and no .venv found"; \
+	fi
+
+# Security scan for terraform module with baseline creation
+security-module-baseline:
+	@echo "Creating security baseline for terraform-module..."
+	@if [ -f .venv/bin/activate ]; then \
+		echo "Activating virtual environment..."; \
+		cd terraform-module && . ../.venv/bin/activate && checkov -d . --config-file .checkov.yml --create-baseline .checkov.baseline; \
+	else \
+		which checkov > /dev/null 2>&1 && checkov -d terraform-module/ --config-file terraform-module/.checkov.yml --create-baseline terraform-module/.checkov.baseline || echo "checkov not installed and no .venv found"; \
+	fi
 
 # Install development tools
 install-tools:

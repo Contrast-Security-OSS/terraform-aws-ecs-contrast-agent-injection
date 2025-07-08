@@ -3,6 +3,7 @@
 *.tfstate.*
 .terraform/
 .terraform.lock.hcl
+.terraform.lock.hcl.bak
 *.tfplan
 *.tfvars
 !*.tfvars.example
@@ -11,6 +12,14 @@ override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
+.terraformrc
+terraform.rc
+
+# Checkov output files
+checkov-results.sarif
+checkov-results.json
+checkov-results.xml
+.checkov.baseline
 
 # Environment variables
 .env
@@ -26,7 +35,10 @@ override.tf.json
 *.swp
 *.swo
 *~
+
+# OS files
 .DS_Store
+Thumbs.db
 
 # Logs
 *.log
