@@ -1,10 +1,10 @@
-# ECS Contrast Agent Sidecar
+# ECS Contrast Agent Injection
 
-A Terraform module to deploy the Contrast Security agent to Amazon ECS using a sidecar pattern with init containers and shared volumes. This approach allows dynamic agent injection without modifying application container images.
+A Terraform module to deploy the Contrast Security agent to Amazon ECS using an agent injection pattern with init containers and shared volumes. This approach allows dynamic agent injection without modifying application container images.
 
 ## Overview
 
-This project implements a production-ready sidecar pattern for deploying the Contrast Security agent alongside Java applications in AWS ECS. The pattern uses:
+This project implements a production-ready agent injection pattern for deploying the Contrast Security agent alongside Java applications in AWS ECS. The pattern uses:
 
 - **Init Container**: A lightweight container that runs before the application to copy the Contrast agent JAR
 - **Shared Volume**: An ephemeral volume that shares the agent between containers
@@ -46,7 +46,7 @@ This project implements a production-ready sidecar pattern for deploying the Con
 ### 1. Use the Module
 
 ```hcl
-module "contrast_sidecar" {
+module "contrast_agent_injection" {
   source = "./terraform-module"
 
   enabled                 = true
@@ -67,9 +67,9 @@ resource "aws_ecs_task_definition" "app" {
   
   # Add the Contrast volume
   dynamic "volume" {
-    for_each = module.contrast_sidecar.volume_config != null ? [1] : []
+    for_each = module.contrast_agent_injection.volume_config != null ? [1] : []
     content {
-      name = module.contrast_sidecar.volume_config.name
+      name = module.contrast_agent_injection.volume_config.name
     }
   }
   
@@ -81,14 +81,14 @@ resource "aws_ecs_task_definition" "app" {
       essential = true
       
       # Add Contrast dependencies
-      dependsOn = module.contrast_sidecar.container_dependencies
+      dependsOn = module.contrast_agent_injection.container_dependencies
       
       # Mount the Contrast volume
-      mountPoints = module.contrast_sidecar.app_mount_points
+      mountPoints = module.contrast_agent_injection.app_mount_points
       
       # Include Contrast environment variables
       environment = concat(
-        module.contrast_sidecar.environment_variables,
+        module.contrast_agent_injection.environment_variables,
         [
           # Your app-specific environment variables
         ]
@@ -96,7 +96,7 @@ resource "aws_ecs_task_definition" "app" {
     }],
     
     # Add the Contrast init container
-    module.contrast_sidecar.init_container_definitions
+    module.contrast_agent_injection.init_container_definitions
   ))
 }
 ```
@@ -183,8 +183,8 @@ Check the [examples](./examples) directory for:
 For issues or questions:
 - Check the [Troubleshooting Guide](./docs/TROUBLESHOOTING.md)
 - Review [Contrast Documentation](https://docs.contrastsecurity.com)
-- Contact your platform team
+- Open an issue in this repository
 
 ## License
 
-This module is maintained by Liberty's Platform Engineering team.
+This module is maintained by Contrast Security.

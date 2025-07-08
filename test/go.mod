@@ -1,4 +1,4 @@
-module github.com/your-org/ecs-contrast-sidecar/test
+module github.com/your-org/ecs-contrast-agent-injection/test
 
 go 1.22
 

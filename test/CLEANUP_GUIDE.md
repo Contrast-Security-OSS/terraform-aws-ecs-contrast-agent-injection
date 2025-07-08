@@ -1,6 +1,6 @@
 # Test Resource Cleanup System
 
-This document describes the comprehensive cleanup system for the ECS Contrast Sidecar test infrastructure.
+This document describes the comprehensive cleanup system for the ECS Contrast Agent Injection test infrastructure.
 
 ## Overview
 
@@ -264,7 +264,7 @@ The cleanup system respects the following environment variables:
 ### Local Development
 ```bash
 # Add to your ~/.bashrc or ~/.zshrc
-alias cleanup-test='cd /path/to/ecs-contrast-sidecar && make test-cleanup-old'
+alias cleanup-test='cd /path/to/ecs-contrast-agent-injection && make test-cleanup-old'
 ```
 
 ## Monitoring and Alerting

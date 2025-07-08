@@ -1,6 +1,6 @@
-# Terraform Module: ECS Contrast Agent Sidecar
+# Terraform Module: ECS Contrast Agent Injection
 
-This Terraform module provides a reusable pattern for deploying the Contrast Security agent as a sidecar in AWS ECS tasks.
+This Terraform module provides a reusable pattern for deploying the Contrast Security agent using an agent injection pattern in AWS ECS tasks.
 
 ## Features
 
@@ -16,7 +16,7 @@ This Terraform module provides a reusable pattern for deploying the Contrast Sec
 ### Basic Example
 
 ```hcl
-module "contrast_sidecar" {
+module "contrast_agent_injection" {
   source = "../terraform-module"
 
   enabled              = true
@@ -42,9 +42,9 @@ resource "aws_ecs_task_definition" "app" {
 
   # Add the Contrast volume if enabled
   dynamic "volume" {
-    for_each = module.contrast_sidecar.volume_config != null ? [1] : []
+    for_each = module.contrast_agent_injection.volume_config != null ? [1] : []
     content {
-      name = module.contrast_sidecar.volume_config.name
+      name = module.contrast_agent_injection.volume_config.name
     }
   }
 
@@ -56,10 +56,10 @@ resource "aws_ecs_task_definition" "app" {
       essential = true
       
       # Add Contrast dependencies
-      dependsOn = module.contrast_sidecar.container_dependencies
+      dependsOn = module.contrast_agent_injection.container_dependencies
       
       # Mount the Contrast volume
-      mountPoints = module.contrast_sidecar.app_mount_points
+      mountPoints = module.contrast_agent_injection.app_mount_points
       
       # Ports
       portMappings = [{
@@ -73,7 +73,7 @@ resource "aws_ecs_task_definition" "app" {
       
       # Environment variables
       environment = concat(
-        module.contrast_sidecar.environment_variables,
+        module.contrast_agent_injection.environment_variables,
         [
           {
             name  = "APP_ENV"
@@ -94,7 +94,7 @@ resource "aws_ecs_task_definition" "app" {
     }],
     
     # Contrast init container
-    module.contrast_sidecar.init_container_definitions
+    module.contrast_agent_injection.init_container_definitions
   ))
 }
 ```
@@ -102,7 +102,7 @@ resource "aws_ecs_task_definition" "app" {
 ### With Proxy Configuration
 
 ```hcl
-module "contrast_sidecar" {
+module "contrast_agent_injection" {
   source = "../terraform-module"
 
   enabled              = true
@@ -140,7 +140,7 @@ Even though the init container only runs at startup, you must account for it in 
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|----------|
-| `enabled` | Enable or disable the Contrast agent sidecar | `bool` | `false` | no |
+| `enabled` | Enable or disable the Contrast agent injection | `bool` | `false` | no |
 | `application_name` | Name of the application as it will appear in Contrast | `string` | - | yes |
 | `contrast_api_url` | URL of the Contrast TeamServer instance | `string` | `https://app.contrastsecurity.com` | no |
 | `contrast_api_key` | API key for Contrast agent authentication | `string` | - | yes |
@@ -182,4 +182,4 @@ Even though the init container only runs at startup, you must account for it in 
 
 ## License
 
-This module is part of Liberty's internal infrastructure toolkit.
+This module is maintained by Contrast Security.

@@ -1,6 +1,6 @@
 # Basic Java Application Example
 
-This example demonstrates how to integrate the Contrast agent sidecar with a basic Java application running on ECS.
+This example demonstrates how to integrate the Contrast agent injection with a basic Java application running on ECS.
 
 ## Prerequisites
 

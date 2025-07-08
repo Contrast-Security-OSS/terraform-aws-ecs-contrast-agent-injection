@@ -1,6 +1,6 @@
-# Migration Guide: From Embedded Agent to Sidecar Pattern
+# Migration Guide: From Embedded Agent to Agent Injection Pattern
 
-This guide helps teams migrate from embedding the Contrast agent in Docker images to using the sidecar pattern.
+This guide helps teams migrate from embe5. Enable Contrast agent injection with `contrast_enabled = true`ding the Contrast agent in Docker images to using the agent injection pattern.
 
 ## Why Migrate?
 
@@ -10,7 +10,7 @@ This guide helps teams migrate from embedding the Contrast agent in Docker image
 - **Tight Coupling**: Security tooling mixed with application code
 - **Slow Rollouts**: Agent patches blocked by application release cycles
 
-### Sidecar Benefits
+### Agent Injection Benefits
 - **Centralized Updates**: Update agent version in one place
 - **Smaller Images**: Application images remain lean
 - **Separation of Concerns**: Security managed at infrastructure layer
@@ -57,8 +57,8 @@ java -jar app.jar
 
 #### 2.1 Deploy Terraform Module
 ```hcl
-module "contrast_sidecar" {
-  source = "git::https://github.com/liberty/terraform-aws-ecs-contrast-sidecar.git?ref=v1.0.0"
+module "contrast_agent_injection" {
+  source = "git::https://github.com/Contrast-Security-Inc/terraform-aws-ecs-contrast-agent-injection.git?ref=v1.0.0"
   
   enabled              = false  # Start disabled
   application_name     = "my-app"
@@ -74,9 +74,9 @@ module "contrast_sidecar" {
 resource "aws_ecs_task_definition" "app" {
   # Add volume
   dynamic "volume" {
-    for_each = module.contrast_sidecar.volume_config != null ? [1] : []
+    for_each = module.contrast_agent_injection.volume_config != null ? [1] : []
     content {
-      name = module.contrast_sidecar.volume_config.name
+      name = module.contrast_agent_injection.volume_config.name
     }
   }
   
@@ -86,15 +86,15 @@ resource "aws_ecs_task_definition" "app" {
       # Remove embedded agent from image
       image = "app:no-agent"
       
-      # Add sidecar configurations
-      dependsOn   = module.contrast_sidecar.container_dependencies
-      mountPoints = module.contrast_sidecar.app_mount_points
+      # Add agent injection configurations
+      dependsOn   = module.contrast_agent_injection.container_dependencies
+      mountPoints = module.contrast_agent_injection.app_mount_points
       environment = concat(
-        module.contrast_sidecar.environment_variables,
+        module.contrast_agent_injection.environment_variables,
         local.app_env_vars
       )
     }],
-    module.contrast_sidecar.init_container_definitions
+    module.contrast_agent_injection.init_container_definitions
   ))
 }
 ```
@@ -201,7 +201,7 @@ aws ecs update-service \
 **Solution**: Validate all settings migrated correctly, use contrast_security.yaml if needed
 
 ### Issue: Resource Constraints
-**Problem**: Sidecar pattern uses slightly more memory (init container overhead)
+**Problem**: Agent injection pattern uses slightly more memory (init container overhead)
 **Solution**: Add 128MB to task memory allocation
 
 ## Success Metrics
@@ -227,5 +227,5 @@ For a typical application:
 
 For migration assistance:
 - Review [Troubleshooting Guide](./TROUBLESHOOTING.md)
-- Contact platform team for guidance
-- Check #contrast-migration Slack channel
+- Check [Contrast Documentation](https://docs.contrastsecurity.com)
+- Open an issue in this repository for guidance

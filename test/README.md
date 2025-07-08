@@ -1,4 +1,4 @@
-# E2E Testing Framework for ECS Contrast Agent Sidecar
+# E2E Testing Framework for ECS Contrast Agent Injection
 
 This directory contains comprehensive end-to-end testing for the Terraform module.
 
@@ -250,4 +250,4 @@ The tests are integrated with the CI/CD pipeline:
 
 1. Check the troubleshooting guide: `docs/TROUBLESHOOTING.md`
 2. Review test logs in the `test-output/` directory
-3. Contact the platform team for assistance
+3. Open an issue in this repository for assistance

@@ -1,6 +1,6 @@
 # Variables for the example Java application
 
-# NOTE: When using the Contrast sidecar, remember that the sum of all container 
+# NOTE: When using the Contrast agent injection, remember that the sum of all container 
 # CPU and memory values cannot exceed the task limits, even for init containers.
 # The init container uses 128 CPU units and 128 MB memory by default.
 

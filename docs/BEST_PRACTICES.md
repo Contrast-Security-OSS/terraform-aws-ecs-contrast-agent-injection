@@ -1,6 +1,6 @@
-# Best Practices for ECS Contrast Agent Sidecar
+# Best Practices for ECS Contrast Agent Injection
 
-This document outlines best practices for deploying and managing the Contrast agent using the sidecar pattern in ECS.
+This document outlines best practices for deploying and managing the Contrast agent using the agent injection pattern in ECS.
 
 ## Architecture Best Practices
 

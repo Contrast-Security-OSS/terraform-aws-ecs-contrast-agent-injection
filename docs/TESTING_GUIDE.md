@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide outlines the comprehensive end-to-end testing strategy implemented for the ECS Contrast Agent Sidecar Terraform module. The testing framework provides robust validation across multiple dimensions including functionality, performance, security, and operational resilience.
+This guide outlines the comprehensive end-to-end testing strategy implemented for the ECS Contrast Agent Injection Terraform module. The testing framework provides robust validation across multiple dimensions including functionality, performance, security, and operational resilience.
 
 ## Testing Architecture
 
@@ -418,7 +418,7 @@ aws ec2 describe-vpcs --filters "Name=tag:Test,Values=true"
 
 ## Conclusion
 
-The robust E2E testing implementation provides comprehensive validation of the ECS Contrast Agent Sidecar module across multiple dimensions:
+The robust E2E testing implementation provides comprehensive validation of the ECS Contrast Agent Injection module across multiple dimensions:
 
 - **Functional Correctness**: Validates all feature scenarios
 - **Operational Resilience**: Tests failure recovery and chaos scenarios

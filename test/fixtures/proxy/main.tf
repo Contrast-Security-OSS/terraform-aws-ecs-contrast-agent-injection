@@ -241,7 +241,7 @@ resource "aws_ecs_cluster" "test" {
 }
 
 # Contrast Sidecar Module with Proxy Configuration
-module "contrast_sidecar" {
+module "contrast_agent_injection" {
   source = "../../../terraform-module"
 
   enabled              = var.contrast_enabled
@@ -272,9 +272,9 @@ resource "aws_ecs_task_definition" "test" {
 
   # Add Contrast volume if enabled
   dynamic "volume" {
-    for_each = module.contrast_sidecar.volume_config != null ? [1] : []
+    for_each = module.contrast_agent_injection.volume_config != null ? [1] : []
     content {
-      name = module.contrast_sidecar.volume_config.name
+      name = module.contrast_agent_injection.volume_config.name
     }
   }
 
@@ -286,10 +286,10 @@ resource "aws_ecs_task_definition" "test" {
       essential = true
 
       # Add Contrast dependencies
-      dependsOn = module.contrast_sidecar.container_dependencies
+      dependsOn = module.contrast_agent_injection.container_dependencies
 
       # Mount Contrast volume
-      mountPoints = module.contrast_sidecar.app_mount_points
+      mountPoints = module.contrast_agent_injection.app_mount_points
 
       # Port mappings
       portMappings = [{
@@ -303,7 +303,7 @@ resource "aws_ecs_task_definition" "test" {
 
       # Environment variables
       environment = concat(
-        module.contrast_sidecar.environment_variables,
+        module.contrast_agent_injection.environment_variables,
         [
           {
             name  = "APP_ENV"
@@ -328,7 +328,7 @@ resource "aws_ecs_task_definition" "test" {
     }],
 
     # Contrast init container
-    module.contrast_sidecar.init_container_definitions
+    module.contrast_agent_injection.init_container_definitions
   ))
 
   tags = local.tags
@@ -373,11 +373,11 @@ output "task_definition_arn" {
 }
 
 output "contrast_enabled" {
-  value = tostring(module.contrast_sidecar.agent_enabled)
+  value = tostring(module.contrast_agent_injection.agent_enabled)
 }
 
 output "contrast_agent_path" {
-  value = module.contrast_sidecar.agent_path
+  value = module.contrast_agent_injection.agent_path
 }
 
 output "log_group_app" {

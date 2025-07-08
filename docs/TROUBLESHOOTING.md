@@ -1,6 +1,6 @@
 # Troubleshooting Guide
 
-This guide helps diagnose and resolve common issues with the Contrast agent sidecar deployment.
+This guide helps diagnose and resolve common issues with the Contrast agent injection deployment.
 
 ## Common Issues
 
@@ -212,7 +212,7 @@ aws ecs update-service \
 
 1. Check CloudWatch Logs for detailed error messages
 2. Review Contrast agent logs (if agent starts)
-3. Contact platform team with:
+3. Open an issue in this repository with:
    - Task ARN
    - Error messages
    - CloudWatch log excerpts

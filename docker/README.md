@@ -1,6 +1,6 @@
 # Docker Images
 
-This directory contains Docker images used in the Contrast sidecar deployment.
+This directory contains Docker images used in the Contrast agent injection deployment.
 
 ## Official Images
 

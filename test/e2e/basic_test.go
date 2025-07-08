@@ -10,7 +10,7 @@ import (
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/your-org/ecs-contrast-sidecar/test/helpers"
+	"github.com/your-org/ecs-contrast-agent-injection/test/helpers"
 )
 
 // TestBasicFunctionality tests the basic functionality of the Contrast sidecar

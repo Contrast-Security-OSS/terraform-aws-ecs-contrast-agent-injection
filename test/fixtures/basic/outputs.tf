@@ -40,12 +40,12 @@ output "security_group_id" {
 
 output "contrast_enabled" {
   description = "Whether Contrast agent is enabled"
-  value       = module.contrast_sidecar.agent_enabled
+  value       = module.contrast_agent_injection.agent_enabled
 }
 
 output "contrast_agent_path" {
   description = "Path to Contrast agent JAR"
-  value       = module.contrast_sidecar.agent_path
+  value       = module.contrast_agent_injection.agent_path
 }
 
 output "log_group_app" {

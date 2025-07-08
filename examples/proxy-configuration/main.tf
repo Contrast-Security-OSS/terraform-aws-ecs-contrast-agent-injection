@@ -1,7 +1,7 @@
 # Example with Proxy Configuration
 # This example shows how to configure the Contrast agent with a corporate proxy
 
-module "contrast_sidecar_with_proxy" {
+module "contrast_agent_injection_with_proxy" {
   source = "../terraform-module"
 
   enabled                = true
@@ -73,14 +73,14 @@ variable "proxy_password" {
 
 # Example outputs
 output "contrast_enabled" {
-  value = module.contrast_sidecar_with_proxy.agent_enabled
+  value = module.contrast_agent_injection_with_proxy.agent_enabled
 }
 
 output "proxy_configured" {
-  value = module.contrast_sidecar_with_proxy.proxy_configured
+  value = module.contrast_agent_injection_with_proxy.proxy_configured
   sensitive = true
 }
 
 output "java_tool_options" {
-  value = module.contrast_sidecar_with_proxy.java_tool_options
+  value = module.contrast_agent_injection_with_proxy.java_tool_options
 }

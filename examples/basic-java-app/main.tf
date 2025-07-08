@@ -1,4 +1,4 @@
-# Example Terraform configuration for a Java application with Contrast sidecar
+# Example Terraform configuration for a Java application with Contrast agent injection
 
 terraform {
   required_version = ">= 1.0"
@@ -251,8 +251,8 @@ resource "aws_security_group" "app" {
   }
 }
 
-# Contrast Sidecar Module
-module "contrast_sidecar" {
+# Contrast Agent Injection Module
+module "contrast_agent_injection" {
   source = "../../terraform-module"
 
   enabled                 = var.contrast_enabled
@@ -288,9 +288,9 @@ resource "aws_ecs_task_definition" "app" {
 
   # Add the Contrast volume if enabled
   dynamic "volume" {
-    for_each = module.contrast_sidecar.volume_config != null ? [1] : []
+    for_each = module.contrast_agent_injection.volume_config != null ? [1] : []
     content {
-      name = module.contrast_sidecar.volume_config.name
+      name = module.contrast_agent_injection.volume_config.name
     }
   }
 
@@ -302,10 +302,10 @@ resource "aws_ecs_task_definition" "app" {
       essential = true
 
       # Add Contrast dependencies
-      dependsOn = module.contrast_sidecar.container_dependencies
+      dependsOn = module.contrast_agent_injection.container_dependencies
 
       # Mount the Contrast volume
-      mountPoints = module.contrast_sidecar.app_mount_points
+      mountPoints = module.contrast_agent_injection.app_mount_points
 
       # Ports
       portMappings = [{
@@ -315,7 +315,7 @@ resource "aws_ecs_task_definition" "app" {
 
       # Environment variables
       environment = concat(
-        module.contrast_sidecar.environment_variables,
+        module.contrast_agent_injection.environment_variables,
         [
           {
             name  = "APP_NAME"
@@ -331,7 +331,7 @@ resource "aws_ecs_task_definition" "app" {
           },
           {
             name  = "JAVA_TOOL_OPTIONS"
-            value = var.contrast_enabled ? "-javaagent:${module.contrast_sidecar.agent_path}" : ""
+            value = var.contrast_enabled ? "-javaagent:${module.contrast_agent_injection.agent_path}" : ""
           }
         ]
       )
@@ -361,7 +361,7 @@ resource "aws_ecs_task_definition" "app" {
     }],
 
     # Contrast init container
-    module.contrast_sidecar.init_container_definitions
+    module.contrast_agent_injection.init_container_definitions
   ))
 }
 
@@ -395,7 +395,7 @@ output "service_name" {
 }
 
 output "contrast_enabled" {
-  value = module.contrast_sidecar.agent_enabled
+  value = module.contrast_agent_injection.agent_enabled
 }
 
 output "task_definition_arn" {
