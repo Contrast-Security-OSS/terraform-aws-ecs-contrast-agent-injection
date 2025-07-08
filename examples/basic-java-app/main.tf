@@ -255,18 +255,18 @@ resource "aws_security_group" "app" {
 module "contrast_agent_injection" {
   source = "../../terraform-module"
 
-  enabled                 = var.contrast_enabled
-  application_name        = var.app_name
-  contrast_api_url        = var.contrast_api_url
-  contrast_api_key        = var.contrast_api_key
-  contrast_service_key    = var.contrast_service_key
-  contrast_user_name      = var.contrast_user_name
-  environment             = var.environment
-  contrast_log_level      = var.contrast_log_level
-  log_group_name          = aws_cloudwatch_log_group.contrast.name
-  log_retention_days      = 14
-  contrast_agent_version  = var.contrast_agent_version
-  enable_stdout_logging   = true
+  enabled                = var.contrast_enabled
+  application_name       = var.app_name
+  contrast_api_url       = var.contrast_api_url
+  contrast_api_key       = var.contrast_api_key
+  contrast_service_key   = var.contrast_service_key
+  contrast_user_name     = var.contrast_user_name
+  environment            = var.environment
+  contrast_log_level     = var.contrast_log_level
+  log_group_name         = aws_cloudwatch_log_group.contrast.name
+  log_retention_days     = 14
+  contrast_agent_version = var.contrast_agent_version
+  enable_stdout_logging  = true
 
   # Add custom tags
   tags = {

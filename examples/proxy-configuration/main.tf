@@ -13,7 +13,7 @@ module "contrast_agent_injection_with_proxy" {
   environment            = "PRODUCTION"
   contrast_log_level     = "INFO"
   contrast_agent_version = "4.0.0"
-  
+
   # Proxy configuration for corporate environments
   proxy_settings = {
     host     = "proxy.company.com"
@@ -21,15 +21,15 @@ module "contrast_agent_injection_with_proxy" {
     username = var.proxy_username
     password = var.proxy_password
   }
-  
+
   # Additional environment variables for custom configuration
   additional_env_vars = {
-    "CONTRAST__ASSESS__SAMPLING__ENABLE"     = "true"
-    "CONTRAST__ASSESS__SAMPLING__BASELINE"   = "10"
-    "CONTRAST__PROTECT__RULES__DISABLED"     = "sqli,xss"
-    "CONTRAST__APPLICATION__TAGS"            = "production,critical"
+    "CONTRAST__ASSESS__SAMPLING__ENABLE"   = "true"
+    "CONTRAST__ASSESS__SAMPLING__BASELINE" = "10"
+    "CONTRAST__PROTECT__RULES__DISABLED"   = "sqli,xss"
+    "CONTRAST__APPLICATION__TAGS"          = "production,critical"
   }
-  
+
   tags = {
     Environment = "production"
     Application = "my-java-service"
@@ -77,7 +77,7 @@ output "contrast_enabled" {
 }
 
 output "proxy_configured" {
-  value = module.contrast_agent_injection_with_proxy.proxy_configured
+  value     = module.contrast_agent_injection_with_proxy.proxy_configured
   sensitive = true
 }
 

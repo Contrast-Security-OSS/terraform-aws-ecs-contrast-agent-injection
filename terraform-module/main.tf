@@ -45,7 +45,7 @@ locals {
     }
 
     # Resource limits for the init container
-    cpu    = var.init_container_cpu
+    cpu               = var.init_container_cpu
     memoryReservation = var.init_container_memory
   }] : []
 
@@ -111,7 +111,7 @@ locals {
       name  = "CONTRAST__ASSESS__CACHE__HIERARCHY_ENABLE"
       value = "false"
     }
-  ], var.proxy_settings != null ? [
+    ], var.proxy_settings != null ? [
     {
       name  = "CONTRAST__PROXY__HOST"
       value = var.proxy_settings.host
@@ -128,7 +128,7 @@ locals {
       name  = "CONTRAST__PROXY__PASSWORD"
       value = var.proxy_settings.password
     }
-  ] : []) : [
+    ] : []) : [
     {
       name  = "CONTRAST_ENABLED"
       value = "false"
@@ -170,7 +170,7 @@ resource "aws_cloudwatch_log_group" "contrast_init" {
   count             = var.enabled && var.log_group_name == "/ecs/contrast-init" ? 1 : 0
   name              = "/ecs/contrast-init"
   retention_in_days = var.log_retention_days
-  
+
   tags = merge(var.tags, {
     Name        = "contrast-init-logs"
     Component   = "contrast-agent"
