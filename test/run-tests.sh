@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Test automation script for ECS Contrast Sidecar
+# Test automation script for ECS Contrast Agent Injection
 # This script provides comprehensive testing capabilities for different environments
 
 set -e
@@ -49,7 +49,7 @@ usage() {
     cat << EOF
 Usage: $0 [OPTIONS]
 
-Test automation script for ECS Contrast Sidecar
+Test automation script for ECS Contrast Agent Injection
 
 OPTIONS:
     -t, --test-types TYPE     Test types to run (unit,integration,e2e) [default: unit,integration,e2e]
@@ -329,7 +329,7 @@ generate_test_report() {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ECS Contrast Sidecar Test Report</title>
+    <title>ECS Contrast Agent Injection Test Report</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         .header { background-color: #f0f0f0; padding: 20px; border-radius: 5px; }
@@ -342,7 +342,7 @@ generate_test_report() {
 </head>
 <body>
     <div class="header">
-        <h1>ECS Contrast Sidecar Test Report</h1>
+        <h1>ECS Contrast Agent Injection Test Report</h1>
         <p>Generated: $(date)</p>
         <p>Region: $AWS_REGION</p>
         <p>Test Types: $TEST_TYPES</p>
@@ -369,7 +369,7 @@ EOF
 
 # Main execution
 main() {
-    log_info "Starting ECS Contrast Sidecar test automation"
+    log_info "Starting ECS Contrast Agent Injection test automation"
     log_info "Test types: $TEST_TYPES"
     log_info "Parallel jobs: $PARALLEL_JOBS"
     log_info "Timeout: $TIMEOUT"

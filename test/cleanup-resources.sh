@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Comprehensive cleanup script for ECS Contrast Sidecar test resources
+# Comprehensive cleanup script for ECS Contrast Agent Injection test resources
 # This script identifies and removes residual infrastructure from failed test runs
 
 set -e
@@ -45,7 +45,7 @@ usage() {
     cat << EOF
 Usage: $0 [OPTIONS]
 
-Cleanup script for ECS Contrast Sidecar test resources
+Cleanup script for ECS Contrast Agent Injection test resources
 
 OPTIONS:
     -r, --region REGION       AWS region [default: us-east-1]

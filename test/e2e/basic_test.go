@@ -13,7 +13,7 @@ import (
 	"github.com/your-org/ecs-contrast-agent-injection/test/helpers"
 )
 
-// TestBasicFunctionality tests the basic functionality of the Contrast sidecar
+// TestBasicFunctionality tests the basic functionality of the Contrast agent injection
 func TestBasicFunctionality(t *testing.T) {
 	t.Parallel()
 

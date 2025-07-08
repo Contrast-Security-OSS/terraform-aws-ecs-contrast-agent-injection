@@ -1,4 +1,4 @@
-# Main Terraform module for ECS Contrast Agent Sidecar
+# Main Terraform module for ECS Contrast Agent Injection
 
 locals {
   # Define the shared volume name

@@ -1,7 +1,7 @@
-# Variables for the ECS Contrast Agent Sidecar module
+# Variables for the ECS Contrast Agent Injection module
 
 variable "enabled" {
-  description = "Enable or disable the Contrast agent sidecar"
+  description = "Enable or disable the Contrast agent injection"
   type        = bool
   default     = false
 }

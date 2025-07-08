@@ -105,7 +105,7 @@ resource "aws_ecs_task_definition" "app" {
 1. Build new application image WITHOUT embedded agent
 2. Deploy with `contrast_enabled = false`
 3. Verify application works without any agent
-4. Enable Contrast sidecar with `contrast_enabled = true`
+4. Enable Contrast agent injection with `contrast_enabled = true`
 5. Verify agent initializes and reports to TeamServer
 
 #### 3.2 Validation Checklist
@@ -193,7 +193,7 @@ aws ecs update-service \
 ## Common Migration Issues
 
 ### Issue: Different Agent Versions
-**Problem**: Embedded agent is older version than sidecar
+**Problem**: Embedded agent is older version than agent injection pattern
 **Solution**: Test thoroughly, check release notes for breaking changes
 
 ### Issue: Configuration Differences

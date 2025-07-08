@@ -242,7 +242,7 @@ resource "aws_ecs_cluster" "test" {
   tags = local.tags
 }
 
-# Contrast Sidecar Module
+# Contrast Agent Injection Module
 module "contrast_agent_injection" {
   source = "../../../terraform-module"
 

@@ -38,7 +38,7 @@ func TestModuleOutputs(t *testing.T) {
 		planOutput := terraform.Plan(t, terraformOptions)
 
 		// Check that plan includes expected resources
-		assert.Contains(t, planOutput, "module.contrast_sidecar", "Plan should include contrast sidecar module")
+		assert.Contains(t, planOutput, "module.contrast_agent_injection", "Plan should include contrast agent injection module")
 		assert.Contains(t, planOutput, "contrast-agent-storage", "Plan should include contrast volume")
 		assert.Contains(t, planOutput, "contrast-init", "Plan should include init container")
 	})

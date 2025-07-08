@@ -1,4 +1,4 @@
-# Outputs for the ECS Contrast Agent Sidecar module
+# Outputs for the ECS Contrast Agent Injection module
 
 output "init_container_definitions" {
   description = "Container definitions for the Contrast init container"

@@ -1,4 +1,4 @@
-# Makefile for ECS Contrast Agent Sidecar
+# Makefile for ECS Contrast Agent Injection
 
 .PHONY: help init validate plan apply destroy clean test docs docker fmt security security-module security-module-detailed security-module-baseline install-tools check-prereqs
 .PHONY: test-setup test-unit test-integration test-e2e test-all test-cleanup test-cleanup-force test-cleanup-old test-cleanup-dry-run test-coverage test-quick

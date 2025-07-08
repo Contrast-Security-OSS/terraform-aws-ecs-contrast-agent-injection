@@ -1,4 +1,4 @@
-# Provider requirements for the ECS Contrast Agent Sidecar module
+# Provider requirements for the ECS Contrast Agent Injection module
 
 terraform {
   required_version = ">= 1.0"

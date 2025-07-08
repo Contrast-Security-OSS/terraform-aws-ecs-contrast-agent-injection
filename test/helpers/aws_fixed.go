@@ -575,11 +575,11 @@ func (h *AWSHelper) extractResourceName(arn string) string {
 	return arn
 }
 
-// ValidateContrastSidecarConfiguration validates the contrast sidecar configuration
-func (h *AWSHelper) ValidateContrastSidecarConfiguration(t testing.TestingT, taskDefArn string, expectedConfig map[string]string) {
+// ValidateContrastAgentInjectionConfiguration validates the contrast agent injection configuration
+func (h *AWSHelper) ValidateContrastAgentInjectionConfiguration(t testing.TestingT, taskDefArn string, expectedConfig map[string]string) {
 	taskDef := h.GetECSTaskDefinition(t, taskDefArn)
 
-	// Find the contrast sidecar container
+	// Find the contrast init container
 	var contrastContainer *ecs.ContainerDefinition
 	for _, container := range taskDef.ContainerDefinitions {
 		if strings.Contains(aws.StringValue(container.Name), "contrast") {
@@ -588,7 +588,7 @@ func (h *AWSHelper) ValidateContrastSidecarConfiguration(t testing.TestingT, tas
 		}
 	}
 
-	require.NotNil(t, contrastContainer, "Contrast sidecar container not found")
+	require.NotNil(t, contrastContainer, "Contrast init container not found")
 
 	// Validate environment variables
 	envVars := make(map[string]string)
@@ -603,22 +603,22 @@ func (h *AWSHelper) ValidateContrastSidecarConfiguration(t testing.TestingT, tas
 	}
 }
 
-// ValidateContrastAgentSidecarPresence validates that the contrast agent sidecar is present
-func (h *AWSHelper) ValidateContrastAgentSidecarPresence(t testing.TestingT, taskDefArn string, shouldBePresent bool) {
+// ValidateContrastAgentInjectionPresence validates that the contrast agent injection is present
+func (h *AWSHelper) ValidateContrastAgentInjectionPresence(t testing.TestingT, taskDefArn string, shouldBePresent bool) {
 	taskDef := h.GetECSTaskDefinition(t, taskDefArn)
 
-	contrastSidecarFound := false
+	contrastInitFound := false
 	for _, container := range taskDef.ContainerDefinitions {
 		if strings.Contains(aws.StringValue(container.Name), "contrast") {
-			contrastSidecarFound = true
+			contrastInitFound = true
 			break
 		}
 	}
 
 	if shouldBePresent {
-		require.True(t, contrastSidecarFound, "Contrast sidecar container should be present but was not found")
+		require.True(t, contrastInitFound, "Contrast init container should be present but was not found")
 	} else {
-		require.False(t, contrastSidecarFound, "Contrast sidecar container should not be present but was found")
+		require.False(t, contrastInitFound, "Contrast init container should not be present but was found")
 	}
 }
 
