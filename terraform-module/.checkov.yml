@@ -1,0 +1,41 @@
+# Checkov configuration for terraform-module only
+framework:
+  - terraform
+
+# Output settings
+output:
+  - cli
+  - sarif
+
+# Include only the current directory (terraform-module)
+directory:
+  - .
+
+# Exclude patterns to avoid scanning other directories
+skip-path:
+  - ../examples/
+  - ../test/
+  - ../docs/
+  - ../.git/
+  - ./.terraform/
+  - ./.terraform.lock.hcl
+
+# Skip specific checks if needed (examples)
+# skip-check:
+#   - CKV_AWS_111  # Example: Skip specific AWS check
+#   - CKV2_AWS_5   # Example: Skip specific cross-resource check
+
+# Compact output for CI
+compact: true
+
+# Quiet mode (reduce verbose output)
+quiet: false
+
+# Download external modules
+download-external-modules: true
+
+# Create baseline file for suppressing existing issues
+# baseline: .checkov.baseline
+
+# Custom policies directory (if you have any)
+# external-checks-dir: ./custom-policies/

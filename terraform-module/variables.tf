@@ -3,7 +3,7 @@
 variable "enabled" {
   description = "Enable or disable the Contrast agent sidecar"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "application_name" {
@@ -71,8 +71,8 @@ variable "init_container_cpu" {
   type        = number
   default     = 2
   validation {
-    condition     = var.init_container_cpu >= 2 && var.init_container_cpu <= 4096
-    error_message = "Init container CPU must be between 2 and 4096 units."
+    condition     = var.init_container_cpu >= 2 && var.init_container_cpu <= 128
+    error_message = "Init container CPU must be between 2 and 128 units."
   }
 }
 

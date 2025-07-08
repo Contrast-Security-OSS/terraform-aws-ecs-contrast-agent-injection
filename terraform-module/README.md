@@ -180,6 +180,64 @@ Even though the init container only runs at startup, you must account for it in 
 - Terraform >= 1.0
 - AWS Provider >= 4.0
 
+## Security Scanning
+
+This module includes configuration for security scanning with Checkov, isolated from the examples and test configurations.
+
+### Quick Security Scan
+
+Run a basic security scan on just this module:
+
+```bash
+# From the project root
+make security-module
+
+# Or from the terraform-module directory
+./scan-security.sh
+```
+
+### Advanced Security Scanning Options
+
+```bash
+# Generate SARIF output for CI/CD integration
+./scan-security.sh --sarif
+
+# Create a baseline to suppress existing issues
+./scan-security.sh --baseline
+
+# Compact output format
+./scan-security.sh --compact --quiet
+
+# JSON output for automation
+./scan-security.sh --output json
+```
+
+### Available Make Targets
+
+- `make security-module` - Basic security scan of terraform-module only
+- `make security-module-detailed` - Detailed scan with SARIF output
+- `make security-module-baseline` - Create security baseline file
+- `make security` - Scan entire project (includes examples)
+
+### Configuration
+
+Security scanning is configured via `.checkov.yml` in this directory. The configuration:
+
+- Excludes examples, tests, and other non-module directories
+- Focuses only on the Terraform module files
+- Outputs both CLI and SARIF formats when requested
+- Supports baseline creation for CI/CD workflows
+
+### CI/CD Integration
+
+For CI/CD pipelines, use the SARIF output:
+
+```bash
+./scan-security.sh --sarif --quiet
+```
+
+This generates `checkov-results.sarif` that can be consumed by GitHub Advanced Security, Azure DevOps, or other SARIF-compatible tools.
+
 ## License
 
 This module is maintained by Contrast Security.
