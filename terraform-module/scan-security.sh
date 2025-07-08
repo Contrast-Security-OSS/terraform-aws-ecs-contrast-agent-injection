@@ -76,25 +76,10 @@ log_error() {
 check_prerequisites() {
     log_info "Checking prerequisites..."
     
-    # Check if virtual environment exists and activate it
-    if [ -f "$PROJECT_ROOT/.venv/bin/activate" ]; then
-        log_info "Activating Python virtual environment..."
-        # shellcheck disable=SC1091
-        source "$PROJECT_ROOT/.venv/bin/activate"
-        
-        if ! command -v checkov &> /dev/null; then
-            log_error "checkov is not installed in the virtual environment"
-            log_info "Install it with: pip install checkov"
-            exit 1
-        fi
-        log_success "Using checkov from virtual environment"
-    elif command -v checkov &> /dev/null; then
-        log_warning "No virtual environment found, using system checkov"
-        log_success "Using system checkov installation"
-    else
-        log_error "checkov is not installed and no virtual environment found"
-        log_info "Either install checkov system-wide with: pip install checkov"
-        log_info "Or create a virtual environment with checkov installed"
+    # Check if checkov is installed
+    if ! command -v checkov &> /dev/null; then
+        log_error "checkov is not installed"
+        log_info "Install it with: pip install checkov"
         exit 1
     fi
     

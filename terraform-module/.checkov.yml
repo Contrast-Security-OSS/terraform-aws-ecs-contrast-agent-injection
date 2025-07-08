@@ -12,7 +12,7 @@ directory:
   - .
 
 # Exclude patterns to avoid scanning other directories
-skip-path:
+exclude-paths:
   - ../examples/
   - ../test/
   - ../docs/
@@ -24,6 +24,14 @@ skip-path:
 # skip-check:
 #   - CKV_AWS_111  # Example: Skip specific AWS check
 #   - CKV2_AWS_5   # Example: Skip specific cross-resource check
+
+# Severity threshold
+check-type:
+  - terraform
+
+# Enable/disable specific frameworks
+enable-plugins:
+  - terraform
 
 # Compact output for CI
 compact: true

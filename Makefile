@@ -113,43 +113,23 @@ fmt:
 security:
 	@echo "Running security scan..."
 	which tfsec > /dev/null 2>&1 && tfsec . || echo "tfsec not installed"
-	@if [ -f .venv/bin/activate ]; then \
-		echo "Activating virtual environment..."; \
-		. .venv/bin/activate && checkov -d . --framework terraform; \
-	else \
-		which checkov > /dev/null 2>&1 && checkov -d . --framework terraform || echo "checkov not installed and no .venv found"; \
-	fi
+	which checkov > /dev/null 2>&1 && checkov -d . --framework terraform || echo "checkov not installed"
 
 # Security scan for terraform module only
 security-module:
 	@echo "Running security scan on terraform-module only..."
 	which tfsec > /dev/null 2>&1 && tfsec terraform-module/ || echo "tfsec not installed"
-	@if [ -f .venv/bin/activate ]; then \
-		echo "Activating virtual environment..."; \
-		cd terraform-module && . ../.venv/bin/activate && checkov --config-file .checkov.yml; \
-	else \
-		which checkov > /dev/null 2>&1 && checkov -d terraform-module/ --config-file terraform-module/.checkov.yml || echo "checkov not installed and no .venv found"; \
-	fi
+	which checkov > /dev/null 2>&1 && checkov -d terraform-module/ --config-file terraform-module/.checkov.yml || echo "checkov not installed"
 
 # Security scan with detailed output for terraform module
 security-module-detailed:
 	@echo "Running detailed security scan on terraform-module..."
-	@if [ -f .venv/bin/activate ]; then \
-		echo "Activating virtual environment..."; \
-		cd terraform-module && . ../.venv/bin/activate && checkov --config-file .checkov.yml -o cli -o sarif --output-file-path console,checkov-results.sarif; \
-	else \
-		which checkov > /dev/null 2>&1 && checkov -d terraform-module/ --config-file terraform-module/.checkov.yml -o cli -o sarif --output-file-path console,terraform-module/checkov-results.sarif || echo "checkov not installed and no .venv found"; \
-	fi
+	which checkov > /dev/null 2>&1 && checkov -d terraform-module/ --config-file terraform-module/.checkov.yml --output cli --output sarif --sarif-file-name terraform-module/checkov-results.sarif || echo "checkov not installed"
 
 # Security scan for terraform module with baseline creation
 security-module-baseline:
 	@echo "Creating security baseline for terraform-module..."
-	@if [ -f .venv/bin/activate ]; then \
-		echo "Activating virtual environment..."; \
-		cd terraform-module && . ../.venv/bin/activate && checkov -d . --config-file .checkov.yml --create-baseline .checkov.baseline; \
-	else \
-		which checkov > /dev/null 2>&1 && checkov -d terraform-module/ --config-file terraform-module/.checkov.yml --create-baseline terraform-module/.checkov.baseline || echo "checkov not installed and no .venv found"; \
-	fi
+	which checkov > /dev/null 2>&1 && checkov -d terraform-module/ --config-file terraform-module/.checkov.yml --create-baseline terraform-module/.checkov.baseline || echo "checkov not installed"
 
 # Install development tools
 install-tools:

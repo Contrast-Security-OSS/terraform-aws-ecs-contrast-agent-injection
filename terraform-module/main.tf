@@ -166,8 +166,6 @@ locals {
 data "aws_region" "current" {}
 
 # CloudWatch Log Group for init container (conditionally created)
-# trivy:ignore:AVD-AWS-0017
-# tfsec:ignore:aws-ssm-secret-use-customer-key
 resource "aws_cloudwatch_log_group" "contrast_init" {
   count             = var.enabled && var.log_group_name == "/ecs/contrast-init" ? 1 : 0
   name              = "/ecs/contrast-init"
