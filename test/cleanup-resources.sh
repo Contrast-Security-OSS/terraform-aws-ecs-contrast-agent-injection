@@ -6,15 +6,11 @@
 set -e
 
 # Configuration
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 AWS_REGION="${AWS_REGION:-us-east-1}"
 DRY_RUN=false
 FORCE=false
 MAX_AGE_HOURS=24
 TEST_PREFIX="test-"
-UNIT_PREFIX="unit-"
-INTEGRATION_PREFIX="integration-"
-E2E_PREFIX="e2e-"
 
 # Colors for output
 RED='\033[0;31m'
@@ -129,7 +125,7 @@ check_aws_cli() {
 calculate_cutoff_time() {
     if [[ "$OSTYPE" == "darwin"* ]]; then
         # macOS
-        date -v-${MAX_AGE_HOURS}H -u '+%Y-%m-%dT%H:%M:%S.000Z'
+        date -v-"${MAX_AGE_HOURS}H" -u '+%Y-%m-%dT%H:%M:%S.000Z'
     else
         # Linux
         date -u -d "${MAX_AGE_HOURS} hours ago" '+%Y-%m-%dT%H:%M:%S.000Z'
@@ -172,27 +168,34 @@ execute_aws_command() {
 cleanup_ecs_services() {
     log_info "Cleaning up ECS services with prefix: $TEST_PREFIX"
     
-    local cutoff_time=$(calculate_cutoff_time)
+    local cutoff_time
+    cutoff_time=$(calculate_cutoff_time)
     
     # Get all clusters
-    local clusters=$(aws ecs list-clusters --region "$AWS_REGION" --query 'clusterArns[]' --output text)
+    local clusters
+    clusters=$(aws ecs list-clusters --region "$AWS_REGION" --query 'clusterArns[]' --output text)
     
     for cluster_arn in $clusters; do
-        local cluster_name=$(basename "$cluster_arn")
+        local cluster_name
+        cluster_name=$(basename "$cluster_arn")
         
         if [[ "$cluster_name" == ${TEST_PREFIX}* ]]; then
             log_info "Checking cluster: $cluster_name"
             
             # Get cluster details to check creation time
-            local cluster_info=$(aws ecs describe-clusters --region "$AWS_REGION" --clusters "$cluster_name" --query 'clusters[0]' --output json)
-            local creation_time=$(echo "$cluster_info" | jq -r '.registeredAt // empty')
+            local cluster_info
+            cluster_info=$(aws ecs describe-clusters --region "$AWS_REGION" --clusters "$cluster_name" --query 'clusters[0]' --output json)
+            local creation_time
+            creation_time=$(echo "$cluster_info" | jq -r '.registeredAt // empty')
             
             if [[ -n "$creation_time" ]] && is_resource_old_enough "$creation_time" "$cutoff_time"; then
                 # Get all services in the cluster
-                local services=$(aws ecs list-services --region "$AWS_REGION" --cluster "$cluster_name" --query 'serviceArns[]' --output text)
+                local services
+                services=$(aws ecs list-services --region "$AWS_REGION" --cluster "$cluster_name" --query 'serviceArns[]' --output text)
                 
                 for service_arn in $services; do
-                    local service_name=$(basename "$service_arn")
+                    local service_name
+                    service_name=$(basename "$service_arn")
                     log_info "Scaling down service: $service_name"
                     
                     # Scale down to 0
@@ -227,17 +230,21 @@ cleanup_ecs_services() {
 cleanup_cloudwatch_logs() {
     log_info "Cleaning up CloudWatch log groups with prefix: /ecs/$TEST_PREFIX"
     
-    local cutoff_time=$(calculate_cutoff_time)
+    local cutoff_time
+    cutoff_time=$(calculate_cutoff_time)
     
     # Get all log groups with the test prefix
-    local log_groups=$(aws logs describe-log-groups --region "$AWS_REGION" --log-group-name-prefix "/ecs/$TEST_PREFIX" --query 'logGroups[].logGroupName' --output text)
+    local log_groups
+    log_groups=$(aws logs describe-log-groups --region "$AWS_REGION" --log-group-name-prefix "/ecs/$TEST_PREFIX" --query 'logGroups[].logGroupName' --output text)
     
     for log_group in $log_groups; do
         log_info "Checking log group: $log_group"
         
         # Get log group details
-        local log_group_info=$(aws logs describe-log-groups --region "$AWS_REGION" --log-group-name-prefix "$log_group" --query 'logGroups[0]' --output json)
-        local creation_time=$(echo "$log_group_info" | jq -r '.creationTime // empty')
+        local log_group_info
+        log_group_info=$(aws logs describe-log-groups --region "$AWS_REGION" --log-group-name-prefix "$log_group" --query 'logGroups[0]' --output json)
+        local creation_time
+        creation_time=$(echo "$log_group_info" | jq -r '.creationTime // empty')
         
         if [[ -n "$creation_time" ]]; then
             # Convert epoch timestamp to ISO format
@@ -263,17 +270,21 @@ cleanup_cloudwatch_logs() {
 cleanup_vpcs() {
     log_info "Cleaning up VPCs with Test=true tag"
     
-    local cutoff_time=$(calculate_cutoff_time)
+    local cutoff_time
+    cutoff_time=$(calculate_cutoff_time)
     
     # Get all VPCs with Test=true tag
-    local vpcs=$(aws ec2 describe-vpcs --region "$AWS_REGION" --filters "Name=tag:Test,Values=true" --query 'Vpcs[].VpcId' --output text)
+    local vpcs
+    vpcs=$(aws ec2 describe-vpcs --region "$AWS_REGION" --filters "Name=tag:Test,Values=true" --query 'Vpcs[].VpcId' --output text)
     
     for vpc_id in $vpcs; do
         log_info "Checking VPC: $vpc_id"
         
         # Get VPC tags to check TestId and creation info
-        local vpc_info=$(aws ec2 describe-vpcs --region "$AWS_REGION" --vpc-ids "$vpc_id" --query 'Vpcs[0]' --output json)
-        local test_id=$(echo "$vpc_info" | jq -r '.Tags[]? | select(.Key=="TestId") | .Value // empty')
+        local vpc_info
+        vpc_info=$(aws ec2 describe-vpcs --region "$AWS_REGION" --vpc-ids "$vpc_id" --query 'Vpcs[0]' --output json)
+        local test_id
+        test_id=$(echo "$vpc_info" | jq -r '.Tags[]? | select(.Key=="TestId") | .Value // empty')
         
         if [[ -n "$test_id" && "$test_id" == ${TEST_PREFIX}* ]]; then
             log_info "Found test VPC: $vpc_id (TestId: $test_id)"
@@ -296,7 +307,8 @@ cleanup_vpc_resources() {
     log_info "Cleaning up resources in VPC: $vpc_id"
     
     # Delete NAT Gateways
-    local nat_gateways=$(aws ec2 describe-nat-gateways --region "$AWS_REGION" --filter "Name=vpc-id,Values=$vpc_id" --query 'NatGateways[?State==`available`].NatGatewayId' --output text)
+    local nat_gateways
+    nat_gateways=$(aws ec2 describe-nat-gateways --region "$AWS_REGION" --filter "Name=vpc-id,Values=$vpc_id" --query "NatGateways[?State==\`available\`].NatGatewayId" --output text)
     for nat_gateway in $nat_gateways; do
         execute_aws_command \
             "aws ec2 delete-nat-gateway --region '$AWS_REGION' --nat-gateway-id '$nat_gateway'" \
@@ -304,7 +316,8 @@ cleanup_vpc_resources() {
     done
     
     # Delete Internet Gateways
-    local igws=$(aws ec2 describe-internet-gateways --region "$AWS_REGION" --filters "Name=attachment.vpc-id,Values=$vpc_id" --query 'InternetGateways[].InternetGatewayId' --output text)
+    local igws
+    igws=$(aws ec2 describe-internet-gateways --region "$AWS_REGION" --filters "Name=attachment.vpc-id,Values=$vpc_id" --query 'InternetGateways[].InternetGatewayId' --output text)
     for igw in $igws; do
         execute_aws_command \
             "aws ec2 detach-internet-gateway --region '$AWS_REGION' --internet-gateway-id '$igw' --vpc-id '$vpc_id'" \
@@ -315,7 +328,8 @@ cleanup_vpc_resources() {
     done
     
     # Delete Route Tables (except main)
-    local route_tables=$(aws ec2 describe-route-tables --region "$AWS_REGION" --filters "Name=vpc-id,Values=$vpc_id" --query 'RouteTables[?Associations[0].Main!=`true`].RouteTableId' --output text)
+    local route_tables
+    route_tables=$(aws ec2 describe-route-tables --region "$AWS_REGION" --filters "Name=vpc-id,Values=$vpc_id" --query "RouteTables[?Associations[0].Main!=\`true\`].RouteTableId" --output text)
     for rt in $route_tables; do
         execute_aws_command \
             "aws ec2 delete-route-table --region '$AWS_REGION' --route-table-id '$rt'" \
@@ -323,7 +337,8 @@ cleanup_vpc_resources() {
     done
     
     # Delete Security Groups (except default)
-    local security_groups=$(aws ec2 describe-security-groups --region "$AWS_REGION" --filters "Name=vpc-id,Values=$vpc_id" --query 'SecurityGroups[?GroupName!=`default`].GroupId' --output text)
+    local security_groups
+    security_groups=$(aws ec2 describe-security-groups --region "$AWS_REGION" --filters "Name=vpc-id,Values=$vpc_id" --query "SecurityGroups[?GroupName!=\`default\`].GroupId" --output text)
     for sg in $security_groups; do
         execute_aws_command \
             "aws ec2 delete-security-group --region '$AWS_REGION' --group-id '$sg'" \
@@ -331,7 +346,8 @@ cleanup_vpc_resources() {
     done
     
     # Delete Subnets
-    local subnets=$(aws ec2 describe-subnets --region "$AWS_REGION" --filters "Name=vpc-id,Values=$vpc_id" --query 'Subnets[].SubnetId' --output text)
+    local subnets
+    subnets=$(aws ec2 describe-subnets --region "$AWS_REGION" --filters "Name=vpc-id,Values=$vpc_id" --query 'Subnets[].SubnetId' --output text)
     for subnet in $subnets; do
         execute_aws_command \
             "aws ec2 delete-subnet --region '$AWS_REGION' --subnet-id '$subnet'" \
@@ -344,13 +360,15 @@ cleanup_iam_roles() {
     log_info "Cleaning up IAM roles with prefix: $TEST_PREFIX"
     
     # Get all roles with test prefix
-    local roles=$(aws iam list-roles --query "Roles[?starts_with(RoleName, '$TEST_PREFIX')].RoleName" --output text)
+    local roles
+    roles=$(aws iam list-roles --query "Roles[?starts_with(RoleName, '$TEST_PREFIX')].RoleName" --output text)
     
     for role in $roles; do
         log_info "Checking IAM role: $role"
         
         # Detach managed policies
-        local attached_policies=$(aws iam list-attached-role-policies --role-name "$role" --query 'AttachedPolicies[].PolicyArn' --output text)
+        local attached_policies
+        attached_policies=$(aws iam list-attached-role-policies --role-name "$role" --query 'AttachedPolicies[].PolicyArn' --output text)
         for policy_arn in $attached_policies; do
             execute_aws_command \
                 "aws iam detach-role-policy --role-name '$role' --policy-arn '$policy_arn'" \
@@ -358,7 +376,8 @@ cleanup_iam_roles() {
         done
         
         # Delete inline policies
-        local inline_policies=$(aws iam list-role-policies --role-name "$role" --query 'PolicyNames[]' --output text)
+        local inline_policies
+        inline_policies=$(aws iam list-role-policies --role-name "$role" --query 'PolicyNames[]' --output text)
         for policy_name in $inline_policies; do
             execute_aws_command \
                 "aws iam delete-role-policy --role-name '$role' --policy-name '$policy_name'" \
@@ -377,14 +396,17 @@ cleanup_load_balancers() {
     log_info "Cleaning up Application Load Balancers with Test=true tag"
     
     # Get all ALBs with Test=true tag
-    local albs=$(aws elbv2 describe-load-balancers --region "$AWS_REGION" --query 'LoadBalancers[].LoadBalancerArn' --output text)
+    local albs
+    albs=$(aws elbv2 describe-load-balancers --region "$AWS_REGION" --query 'LoadBalancers[].LoadBalancerArn' --output text)
     
     for alb_arn in $albs; do
         # Check if ALB has Test=true tag
-        local tags=$(aws elbv2 describe-tags --region "$AWS_REGION" --resource-arns "$alb_arn" --query 'TagDescriptions[0].Tags[?Key==`Test`].Value' --output text)
+        local tags
+        tags=$(aws elbv2 describe-tags --region "$AWS_REGION" --resource-arns "$alb_arn" --query "TagDescriptions[0].Tags[?Key==\`Test\`].Value" --output text)
         
         if [[ "$tags" == "true" ]]; then
-            local alb_name=$(aws elbv2 describe-load-balancers --region "$AWS_REGION" --load-balancer-arns "$alb_arn" --query 'LoadBalancers[0].LoadBalancerName' --output text)
+            local alb_name
+            alb_name=$(aws elbv2 describe-load-balancers --region "$AWS_REGION" --load-balancer-arns "$alb_arn" --query 'LoadBalancers[0].LoadBalancerName' --output text)
             log_info "Found test ALB: $alb_name"
             
             execute_aws_command \
@@ -399,13 +421,15 @@ cleanup_task_definitions() {
     log_info "Cleaning up ECS task definitions with prefix: $TEST_PREFIX"
     
     # Get all task definition families with test prefix
-    local task_families=$(aws ecs list-task-definition-families --region "$AWS_REGION" --family-prefix "$TEST_PREFIX" --query 'families[]' --output text)
+    local task_families
+    task_families=$(aws ecs list-task-definition-families --region "$AWS_REGION" --family-prefix "$TEST_PREFIX" --query 'families[]' --output text)
     
     for family in $task_families; do
         log_info "Deregistering task definition family: $family"
         
         # Get all revisions for this family
-        local revisions=$(aws ecs list-task-definitions --region "$AWS_REGION" --family-prefix "$family" --query 'taskDefinitionArns[]' --output text)
+        local revisions
+        revisions=$(aws ecs list-task-definitions --region "$AWS_REGION" --family-prefix "$family" --query 'taskDefinitionArns[]' --output text)
         
         for revision_arn in $revisions; do
             execute_aws_command \

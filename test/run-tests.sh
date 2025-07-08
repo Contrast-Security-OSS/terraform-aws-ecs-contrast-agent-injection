@@ -8,14 +8,14 @@ set -e
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEST_DIR="$SCRIPT_DIR"
-TERRAFORM_DIR="$SCRIPT_DIR/../terraform-module"
-EXAMPLES_DIR="$SCRIPT_DIR/../examples"
+# Exported for potential external use
+export TERRAFORM_DIR="$SCRIPT_DIR/../terraform-module"
+export EXAMPLES_DIR="$SCRIPT_DIR/../examples"
 
 # Default values
 TEST_TYPES="unit,integration,e2e"
 PARALLEL_JOBS=4
 TIMEOUT="60m"
-CLEANUP=true
 VERBOSE=false
 REGION="us-east-1"
 KEEP_RESOURCES=false
@@ -153,21 +153,27 @@ check_prerequisites() {
     done
     
     # Check Go version
-    local go_version=$(go version | grep -o 'go[0-9]\+\.[0-9]\+' | sed 's/go//')
-    local go_major=$(echo "$go_version" | cut -d. -f1)
-    local go_minor=$(echo "$go_version" | cut -d. -f2)
+    local go_version
+    go_version=$(go version | grep -o 'go[0-9]\+\.[0-9]\+' | sed 's/go//')
+    local go_major
+    go_major=$(echo "$go_version" | cut -d. -f1)
+    local go_minor
+    go_minor=$(echo "$go_version" | cut -d. -f2)
     
-    if [ "$go_major" -lt 1 ] || [ "$go_major" -eq 1 -a "$go_minor" -lt 21 ]; then
+    if [ "$go_major" -lt 1 ] || [ "$go_major" -eq 1 ] && [ "$go_minor" -lt 21 ]; then
         log_error "Go 1.21 or higher is required (found: $go_version)"
         exit 1
     fi
     
     # Check Terraform version
-    local tf_version=$(terraform version | head -n1 | grep -o 'v[0-9]\+\.[0-9]\+\.[0-9]\+' | sed 's/v//')
-    local tf_major=$(echo "$tf_version" | cut -d. -f1)
-    local tf_minor=$(echo "$tf_version" | cut -d. -f2)
+    local tf_version
+    tf_version=$(terraform version | head -n1 | grep -o 'v[0-9]\+\.[0-9]\+\.[0-9]\+' | sed 's/v//')
+    local tf_major
+    tf_major=$(echo "$tf_version" | cut -d. -f1)
+    local tf_minor
+    tf_minor=$(echo "$tf_version" | cut -d. -f2)
     
-    if [ "$tf_major" -lt 1 ] || [ "$tf_major" -eq 1 -a "$tf_minor" -lt 0 ]; then
+    if [ "$tf_major" -lt 1 ] || [ "$tf_major" -eq 1 ] && [ "$tf_minor" -lt 0 ]; then
         log_error "Terraform 1.0 or higher is required (found: $tf_version)"
         exit 1
     fi
@@ -223,7 +229,7 @@ run_unit_tests() {
         go test -timeout "$TIMEOUT" -parallel "$PARALLEL_JOBS" ./unit/... 2>&1 | tee "$TEST_DIR/test-output/unit-tests.log"
     fi
     
-    if [ ${PIPESTATUS[0]} -eq 0 ]; then
+    if [ "${PIPESTATUS[0]}" -eq 0 ]; then
         log_success "Unit tests passed"
     else
         log_error "Unit tests failed"
@@ -243,7 +249,7 @@ run_integration_tests() {
         go test -timeout "$TIMEOUT" -parallel "$PARALLEL_JOBS" ./integration/... 2>&1 | tee "$TEST_DIR/test-output/integration-tests.log"
     fi
     
-    if [ ${PIPESTATUS[0]} -eq 0 ]; then
+    if [ "${PIPESTATUS[0]}" -eq 0 ]; then
         log_success "Integration tests passed"
     else
         log_error "Integration tests failed"
@@ -264,7 +270,7 @@ run_e2e_tests() {
         go test -timeout "$TIMEOUT" -parallel "$PARALLEL_JOBS" ./e2e/... 2>&1 | tee "$TEST_DIR/test-output/e2e-tests.log"
     fi
     
-    if [ ${PIPESTATUS[0]} -eq 0 ]; then
+    if [ "${PIPESTATUS[0]}" -eq 0 ]; then
         log_success "E2E tests passed"
     else
         log_error "E2E tests failed"
@@ -273,6 +279,8 @@ run_e2e_tests() {
 }
 
 # Run specific test by name
+# This function is available for external use and may be called indirectly
+# shellcheck disable=SC2317
 run_specific_test() {
     local test_name="$1"
     log_info "Running specific test: $test_name"
@@ -285,7 +293,7 @@ run_specific_test() {
         go test -timeout "$TIMEOUT" -run "$test_name" ./... 2>&1 | tee "$TEST_DIR/test-output/specific-test.log"
     fi
     
-    if [ ${PIPESTATUS[0]} -eq 0 ]; then
+    if [ "${PIPESTATUS[0]}" -eq 0 ]; then
         log_success "Specific test passed: $test_name"
     else
         log_error "Specific test failed: $test_name"
@@ -309,6 +317,8 @@ cleanup_test_resources() {
 }
 
 # Force cleanup of all test resources
+# This function is available for external use and may be called indirectly
+# shellcheck disable=SC2317
 cleanup_test_resources_force() {
     log_warning "Force cleaning up ALL test resources..."
     log_warning "This will delete ALL resources with 'test-' prefix regardless of age"
@@ -325,7 +335,8 @@ generate_test_report() {
     
     local report_file="$TEST_DIR/test-output/test-report.html"
     
-    cat > "$report_file" << EOF
+    {
+        cat << 'EOF'
 <!DOCTYPE html>
 <html>
 <head>
@@ -343,26 +354,27 @@ generate_test_report() {
 <body>
     <div class="header">
         <h1>ECS Contrast Agent Injection Test Report</h1>
-        <p>Generated: $(date)</p>
-        <p>Region: $AWS_REGION</p>
-        <p>Test Types: $TEST_TYPES</p>
-    </div>
 EOF
-    
-    # Add test results to report
-    for test_type in $(echo "$TEST_TYPES" | tr ',' ' '); do
-        local log_file="$TEST_DIR/test-output/${test_type}-tests.log"
-        if [ -f "$log_file" ]; then
-            echo "    <div class='section'>" >> "$report_file"
-            echo "        <h2>$test_type Tests</h2>" >> "$report_file"
-            echo "        <pre>" >> "$report_file"
-            cat "$log_file" >> "$report_file"
-            echo "        </pre>" >> "$report_file"
-            echo "    </div>" >> "$report_file"
-        fi
-    done
-    
-    echo "</body></html>" >> "$report_file"
+        echo "        <p>Generated: $(date)</p>"
+        echo "        <p>Region: $AWS_REGION</p>"
+        echo "        <p>Test Types: $TEST_TYPES</p>"
+        echo "    </div>"
+        
+        # Add test results to report
+        for test_type in $(echo "$TEST_TYPES" | tr ',' ' '); do
+            local log_file="$TEST_DIR/test-output/${test_type}-tests.log"
+            if [ -f "$log_file" ]; then
+                echo "    <div class='section'>"
+                echo "        <h2>$test_type Tests</h2>"
+                echo "        <pre>"
+                cat "$log_file"
+                echo "        </pre>"
+                echo "    </div>"
+            fi
+        done
+        
+        echo "</body></html>"
+    } > "$report_file"
     
     log_success "Test report generated: $report_file"
 }
