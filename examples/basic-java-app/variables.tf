@@ -1,14 +1,31 @@
 # Variables for the example Java application
 
+# NOTE: When using the Contrast sidecar, remember that the sum of all container 
+# CPU and memory values cannot exceed the task limits, even for init containers.
+# The init container uses 128 CPU units and 128 MB memory by default.
+
 variable "aws_region" {
   description = "AWS region"
   type        = string
   default     = "us-east-1"
 }
 
-variable "vpc_id" {
-  description = "VPC ID where the application will be deployed"
+variable "aws_profile" {
+  description = "AWS CLI profile to use"
   type        = string
+  default     = "contrast-hde"
+}
+
+variable "vpc_cidr" {
+  description = "CIDR block for the VPC"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+variable "availability_zones" {
+  description = "List of availability zones. If not specified, will use first 2 AZs in the region."
+  type        = list(string)
+  default     = []
 }
 
 variable "app_name" {
@@ -31,7 +48,11 @@ variable "app_port" {
 variable "environment" {
   description = "Environment name"
   type        = string
-  default     = "development"
+  default     = "DEVELOPMENT"
+  validation {
+    condition     = contains(["PRODUCTION", "QA", "DEVELOPMENT"], upper(var.environment))
+    error_message = "Environment must be one of: PRODUCTION, QA, DEVELOPMENT"
+  }
 }
 
 variable "team" {
@@ -41,10 +62,12 @@ variable "team" {
 }
 
 # ECS Configuration
+# Note: When Contrast is enabled, the init container uses 128 CPU + 128 MB
+# Adjust app_cpu and app_memory accordingly to stay within task limits
 variable "desired_count" {
   description = "Desired number of tasks"
   type        = number
-  default     = 2
+  default     = 1
 }
 
 variable "task_cpu" {
@@ -62,13 +85,13 @@ variable "task_memory" {
 variable "app_cpu" {
   description = "CPU units for the application container"
   type        = number
-  default     = 384
+  default     = 510
 }
 
 variable "app_memory" {
   description = "Memory for the application container in MB"
   type        = number
-  default     = 896
+  default     = 1018
 }
 
 # Contrast Configuration
@@ -81,7 +104,7 @@ variable "contrast_enabled" {
 variable "contrast_api_url" {
   description = "Contrast API URL"
   type        = string
-  default     = "https://app.contrastsecurity.com"
+  default     = "https://app.contrastsecurity.com/Contrast"
 }
 
 variable "contrast_api_key" {
@@ -100,4 +123,24 @@ variable "contrast_user_name" {
   description = "Contrast user name"
   type        = string
   sensitive   = true
+}
+
+variable "contrast_log_level" {
+  description = "Log level for the Contrast agent"
+  type        = string
+  default     = "INFO"
+  validation {
+    condition     = contains(["TRACE", "DEBUG", "INFO", "WARN", "ERROR"], upper(var.contrast_log_level))
+    error_message = "Log level must be one of: TRACE, DEBUG, INFO, WARN, ERROR"
+  }
+}
+
+variable "contrast_agent_version" {
+  description = "Specific version of the Contrast agent to use"
+  type        = string
+  default     = "latest"
+  validation {
+    condition     = can(regex("^(latest|[0-9]+\\.[0-9]+\\.[0-9]+)$", var.contrast_agent_version))
+    error_message = "Agent version must be 'latest' or a semantic version (e.g., 3.12.2)"
+  }
 }

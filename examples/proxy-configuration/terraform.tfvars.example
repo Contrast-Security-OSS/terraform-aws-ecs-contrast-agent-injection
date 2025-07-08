@@ -1,0 +1,11 @@
+# Proxy Configuration Example
+# Copy this to terraform.tfvars and fill in your actual values
+
+# Contrast Configuration
+contrast_api_key     = "your-api-key-here"
+contrast_service_key = "your-service-key-here"
+contrast_user_name   = "agent_xxxxxx@YourOrg"
+
+# Proxy Configuration
+proxy_username = "your-proxy-user"
+proxy_password = "your-proxy-password"

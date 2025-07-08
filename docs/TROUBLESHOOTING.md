@@ -133,7 +133,7 @@ Check `JAVA_TOOL_OPTIONS` is properly concatenating both agents
 **Solutions:**
 ```bash
 # Ensure proper ordering in start.sh
-export JAVA_TOOL_OPTIONS="-javaagent:/opt/contrast/java/contrast.jar ${JAVA_TOOL_OPTIONS}"
+export JAVA_TOOL_OPTIONS="-javaagent:/opt/contrast/java/contrast-agent.jar ${JAVA_TOOL_OPTIONS}"
 ```
 
 ## Debugging Commands

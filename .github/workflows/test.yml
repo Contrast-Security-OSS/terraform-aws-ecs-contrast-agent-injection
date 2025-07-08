@@ -1,0 +1,518 @@
+name: ECS Contrast Sidecar CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'terraform-module/**'
+      - 'test/**'
+      - 'examples/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'terraform-module/**'
+      - 'test/**'
+      - 'examples/**'
+      - '.github/workflows/**'
+  schedule:
+    # Run nightly tests at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Type of tests to run'
+        required: true
+        default: 'unit,integration'
+        type: choice
+        options:
+          - 'unit'
+          - 'integration'
+          - 'e2e'
+          - 'unit,integration'
+          - 'unit,integration,e2e'
+      aws_region:
+        description: 'AWS region for testing'
+        required: false
+        default: 'us-east-1'
+        type: string
+      keep_resources:
+        description: 'Keep resources after test failure'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  GO_VERSION: '1.21'
+  TERRAFORM_VERSION: '1.6'
+  AWS_REGION: ${{ inputs.aws_region || 'us-east-1' }}
+  KEEP_RESOURCES: ${{ inputs.keep_resources || false }}
+
+jobs:
+  # Pre-flight checks
+  validate:
+    name: Validate Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive .
+
+      - name: Terraform Validate Module
+        run: |
+          cd terraform-module
+          terraform init -backend=false
+          terraform validate
+
+      - name: Terraform Validate Examples
+        run: |
+          cd examples/basic-java-app
+          terraform init -backend=false
+          terraform validate
+
+      - name: Go Format Check
+        run: |
+          cd test
+          if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+            echo "Go code is not formatted properly:"
+            gofmt -s -l .
+            exit 1
+          fi
+
+      - name: Go Mod Tidy Check
+        run: |
+          cd test
+          go mod tidy
+          if [ -n "$(git status --porcelain go.mod go.sum)" ]; then
+            echo "go.mod or go.sum is not tidy"
+            git diff
+            exit 1
+          fi
+
+  # Security scanning
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Run Gosec Security Scanner
+        uses: securecodewarrior/github-action-gosec@master
+        with:
+          args: '-fmt sarif -out gosec-results.sarif ./test/...'
+
+      - name: Upload Gosec Results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: gosec-results.sarif
+
+      - name: Run Terraform Security Scan
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          working_directory: '.'
+          format: sarif
+          sarif_file: tfsec-results.sarif
+
+      - name: Upload TFSec Results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: tfsec-results.sarif
+
+  # Unit tests (always run)
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: [validate, security]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Cache Go Modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('test/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install Dependencies
+        run: |
+          cd test
+          go mod download
+
+      - name: Run Unit Tests
+        run: |
+          cd test
+          go test -v -timeout 30m -parallel 4 -cover -coverprofile=coverage.out ./unit/...
+
+      - name: Generate Coverage Report
+        run: |
+          cd test
+          go tool cover -html=coverage.out -o coverage.html
+
+      - name: Upload Coverage Reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-reports
+          path: test/coverage.*
+
+      - name: Comment Coverage on PR
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: coverage
+          message: |
+            ## Test Coverage Report
+            
+            Coverage results are available in the artifacts.
+            
+            ```
+            $(cd test && go tool cover -func=coverage.out | tail -1)
+            ```
+
+  # Integration tests (run on main, develop, and manual trigger)
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [unit-tests]
+    if: |
+      github.ref == 'refs/heads/main' || 
+      github.ref == 'refs/heads/develop' || 
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule'
+    strategy:
+      matrix:
+        aws_region: ['us-east-1', 'us-west-2']
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ matrix.aws_region }}
+
+      - name: Install Dependencies
+        run: |
+          cd test
+          go mod download
+
+      - name: Run Integration Tests
+        env:
+          CONTRAST_API_KEY: ${{ secrets.CONTRAST_API_KEY }}
+          CONTRAST_SERVICE_KEY: ${{ secrets.CONTRAST_SERVICE_KEY }}
+          CONTRAST_USER_NAME: ${{ secrets.CONTRAST_USER_NAME }}
+          CONTRAST_API_URL: ${{ secrets.CONTRAST_API_URL }}
+          AWS_REGION: ${{ matrix.aws_region }}
+        run: |
+          cd test
+          go test -v -timeout 45m -parallel 2 ./integration/...
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: integration-test-results-${{ matrix.aws_region }}
+          path: test/test-output/
+
+  # E2E tests (run on manual trigger, schedule, and main branch)
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: [integration-tests]
+    if: |
+      (github.ref == 'refs/heads/main' && github.event_name == 'push') ||
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule'
+    strategy:
+      matrix:
+        test_group: 
+          - 'basic'
+          - 'proxy'
+          - 'chaos'
+          - 'performance'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install Dependencies
+        run: |
+          cd test
+          go mod download
+
+      - name: Run E2E Tests - Basic
+        if: matrix.test_group == 'basic'
+        env:
+          CONTRAST_API_KEY: ${{ secrets.CONTRAST_API_KEY }}
+          CONTRAST_SERVICE_KEY: ${{ secrets.CONTRAST_SERVICE_KEY }}
+          CONTRAST_USER_NAME: ${{ secrets.CONTRAST_USER_NAME }}
+          CONTRAST_API_URL: ${{ secrets.CONTRAST_API_URL }}
+        run: |
+          cd test
+          go test -v -timeout 90m -run "TestBasicFunctionality|TestDisabledAgent|TestAgentToggle" ./e2e/...
+
+      - name: Run E2E Tests - Proxy
+        if: matrix.test_group == 'proxy'
+        env:
+          CONTRAST_API_KEY: ${{ secrets.CONTRAST_API_KEY }}
+          CONTRAST_SERVICE_KEY: ${{ secrets.CONTRAST_SERVICE_KEY }}
+          CONTRAST_USER_NAME: ${{ secrets.CONTRAST_USER_NAME }}
+          CONTRAST_API_URL: ${{ secrets.CONTRAST_API_URL }}
+        run: |
+          cd test
+          go test -v -timeout 90m -run "TestProxyConfiguration" ./e2e/...
+
+      - name: Run E2E Tests - Chaos
+        if: matrix.test_group == 'chaos'
+        env:
+          CONTRAST_API_KEY: ${{ secrets.CONTRAST_API_KEY }}
+          CONTRAST_SERVICE_KEY: ${{ secrets.CONTRAST_SERVICE_KEY }}
+          CONTRAST_USER_NAME: ${{ secrets.CONTRAST_USER_NAME }}
+          CONTRAST_API_URL: ${{ secrets.CONTRAST_API_URL }}
+        run: |
+          cd test
+          go test -v -timeout 120m -run "TestChaosEngineering|TestFailureScenarios" ./e2e/...
+
+      - name: Run E2E Tests - Performance
+        if: matrix.test_group == 'performance'
+        env:
+          CONTRAST_API_KEY: ${{ secrets.CONTRAST_API_KEY }}
+          CONTRAST_SERVICE_KEY: ${{ secrets.CONTRAST_SERVICE_KEY }}
+          CONTRAST_USER_NAME: ${{ secrets.CONTRAST_USER_NAME }}
+          CONTRAST_API_URL: ${{ secrets.CONTRAST_API_URL }}
+        run: |
+          cd test
+          go test -v -timeout 120m -run "TestPerformanceMetrics|TestResourceConstraints" ./e2e/...
+
+      - name: Upload E2E Test Results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: e2e-test-results-${{ matrix.test_group }}
+          path: test/test-output/
+
+      - name: Cleanup Resources on Failure
+        if: failure() && env.KEEP_RESOURCES != 'true'
+        env:
+          AWS_REGION: ${{ env.AWS_REGION }}
+        run: |
+          cd test
+          ./run-tests.sh --cleanup-force || true
+
+  # Nightly long-running tests
+  nightly-tests:
+    name: Nightly Stability Tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install Dependencies
+        run: |
+          cd test
+          go mod download
+
+      - name: Run Stability Tests
+        env:
+          CONTRAST_API_KEY: ${{ secrets.CONTRAST_API_KEY }}
+          CONTRAST_SERVICE_KEY: ${{ secrets.CONTRAST_SERVICE_KEY }}
+          CONTRAST_USER_NAME: ${{ secrets.CONTRAST_USER_NAME }}
+          CONTRAST_API_URL: ${{ secrets.CONTRAST_API_URL }}
+        run: |
+          cd test
+          go test -v -timeout 240m -run "TestLongRunningStability|TestMultiRegionDeployment" ./e2e/...
+
+      - name: Upload Nightly Test Results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: nightly-test-results
+          path: test/test-output/
+
+      - name: Notify on Failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          message: "Nightly tests failed! Check the workflow for details."
+
+  # Deployment validation
+  deployment-validation:
+    name: Deployment Validation
+    runs-on: ubuntu-latest
+    needs: [unit-tests]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Validate Example Deployment
+        env:
+          TF_VAR_contrast_api_key: ${{ secrets.CONTRAST_API_KEY }}
+          TF_VAR_contrast_service_key: ${{ secrets.CONTRAST_SERVICE_KEY }}
+          TF_VAR_contrast_user_name: ${{ secrets.CONTRAST_USER_NAME }}
+          TF_VAR_contrast_enabled: "false"  # Deploy without agent for validation
+        run: |
+          cd examples/basic-java-app
+          terraform init
+          terraform plan -out=tfplan
+          terraform apply -auto-approve tfplan
+          
+          # Wait for deployment
+          sleep 60
+          
+          # Validate deployment
+          terraform output -json
+          
+          # Cleanup
+          terraform destroy -auto-approve
+
+  # Release preparation
+  prepare-release:
+    name: Prepare Release
+    runs-on: ubuntu-latest
+    needs: [e2e-tests, deployment-validation]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for changelog
+
+      - name: Generate Changelog
+        uses: conventional-changelog/standard-version@v9
+        with:
+          tag-prefix: 'v'
+          dry-run: true
+
+      - name: Create Release PR
+        if: success()
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: prepare release"
+          title: "chore: prepare next release"
+          body: |
+            This PR prepares the next release based on recent changes.
+            
+            ## Changes
+            - All tests passing
+            - Security scans clean
+            - Examples validated
+            
+            Ready for release when merged.
+          branch: "release/prepare-next"
+          delete-branch: true
+
+  # Summary job
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [validate, security, unit-tests, integration-tests, e2e-tests]
+    if: always()
+    steps:
+      - name: Test Summary
+        run: |
+          echo "## Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Test Type | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Validation | ${{ needs.validate.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security | ${{ needs.security.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests | ${{ needs.unit-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Integration Tests | ${{ needs.integration-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| E2E Tests | ${{ needs.e2e-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Notify on Failure
+        if: contains(needs.*.result, 'failure')
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          message: "Test suite failed! Check the workflow for details."

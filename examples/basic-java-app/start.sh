@@ -10,14 +10,14 @@ echo "Environment: ${APP_ENV}"
 # If CONTRAST_ENABLED is set to "true", it prepends the
 # -javaagent flag to the JAVA_TOOL_OPTIONS environment variable.
 # This ensures the JVM loads the agent without altering the core
-# application command. The path /opt/contrast/java/contrast.jar
+# application command. The path /opt/contrast/java/contrast-agent.jar
 # corresponds to the shared volume mount point in the app container.
 # =================================================================
 if [ "$CONTRAST_ENABLED" = "true" ]; then
     echo "Contrast agent is enabled. Injecting agent into JAVA_TOOL_OPTIONS."
     
     # Define the path to the agent JAR
-    CONTRAST_AGENT_PATH="/opt/contrast/java/contrast.jar"
+    CONTRAST_AGENT_PATH="/opt/contrast/java/contrast-agent.jar"
     
     # Check if the agent file exists
     if [ -f "$CONTRAST_AGENT_PATH" ]; then

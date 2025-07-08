@@ -15,16 +15,16 @@ This project implements a production-ready sidecar pattern for deploying the Con
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                     ECS Task Definition                      │
+│                     ECS Task Definition                     │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
-│  ┌─────────────────────┐    ┌──────────────────────────┐  │
-│  │   Init Container    │    │   Application Container   │  │
-│  │ (contrast-init)     │    │     (my-java-app)        │  │
-│  │                     │    │                           │  │
-│  │ 1. Copies agent.jar │───▶│ 2. Mounts agent.jar      │  │
-│  │    to shared volume │    │ 3. Runs with -javaagent  │  │
-│  └─────────────────────┘    └──────────────────────────┘  │
+│  ┌─────────────────────┐    ┌──────────────────────────┐    │
+│  │   Init Container    │    │   Application Container  │    │
+│  │ (contrast-init)     │    │     (my-java-app)        │    │
+│  │                     │    │                          │    │
+│  │ 1. Copies agent.jar │───▶│ 2. Mounts agent.jar      │    │
+│  │    to shared volume │    │ 3. Runs with -javaagent  │    │
+│  └─────────────────────┘    └──────────────────────────┘    │
 │             │                            │                  │
 │             └────────────┬───────────────┘                  │
 │                          │                                  │
@@ -111,7 +111,7 @@ Add to your application's `start.sh`:
 # Contrast Agent Dynamic Injection
 if [ "$CONTRAST_ENABLED" = "true" ]; then
   echo "Contrast agent is enabled. Injecting agent into JAVA_TOOL_OPTIONS."
-  CONTRAST_AGENT_PATH="/opt/contrast/java/contrast.jar"
+  CONTRAST_AGENT_PATH="/opt/contrast/java/contrast-agent.jar"
   export JAVA_TOOL_OPTIONS="-javaagent:${CONTRAST_AGENT_PATH} ${JAVA_TOOL_OPTIONS}"
   echo "Updated JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS}"
 fi
@@ -164,23 +164,19 @@ Monitor these metrics after deployment:
 
 To quickly disable the Contrast agent:
 
-1. Set `ENABLE_CONTRAST_IN_TARGET_ENV=false` in Jenkins
-2. Redeploy the service
-3. Terraform will create a new task definition without the agent
+1. Set `enabled = false` in your Terraform configuration
+2. Apply the Terraform changes
+3. Redeploy the service
 4. ECS will perform a rolling deployment
 
 Total rollback time: Same as standard deployment time
-
-## CI/CD Integration
-
-See the [Jenkins Integration Guide](./jenkins/README.md) for pipeline setup instructions.
 
 ## Examples
 
 Check the [examples](./examples) directory for:
 - Basic Java application setup
 - Multi-environment configuration
-- Integration with existing DataDog setup
+- Integration with existing monitoring setup
 
 ## Support
 

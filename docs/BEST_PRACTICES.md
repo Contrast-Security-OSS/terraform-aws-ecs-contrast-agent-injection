@@ -291,7 +291,7 @@ additional_env_vars = {
 **When Running with DataDog:**
 ```bash
 # Order matters - Contrast first, then DataDog
-export JAVA_TOOL_OPTIONS="-javaagent:/opt/contrast/java/contrast.jar -javaagent:/opt/datadog/dd-java-agent.jar"
+export JAVA_TOOL_OPTIONS="-javaagent:/opt/contrast/java/contrast-agent.jar -javaagent:/opt/datadog/dd-java-agent.jar"
 ```
 
 ## Maintenance Best Practices

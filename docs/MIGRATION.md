@@ -48,7 +48,7 @@ After:
 #!/bin/sh
 # start.sh with dynamic injection
 if [ "$CONTRAST_ENABLED" = "true" ]; then
-    export JAVA_TOOL_OPTIONS="-javaagent:/opt/contrast/java/contrast.jar ${JAVA_TOOL_OPTIONS}"
+    export JAVA_TOOL_OPTIONS="-javaagent:/opt/contrast/java/contrast-agent.jar ${JAVA_TOOL_OPTIONS}"
 fi
 java -jar app.jar
 ```

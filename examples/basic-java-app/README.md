@@ -6,8 +6,9 @@ This example demonstrates how to integrate the Contrast agent sidecar with a bas
 
 - AWS Account with ECS/Fargate access
 - Contrast Security account with API credentials
-- Existing VPC and subnets
 - Java application Docker image
+
+The example will create its own VPC, subnets, NAT gateways, and all necessary networking infrastructure.
 
 ## Files
 
@@ -19,13 +20,19 @@ This example demonstrates how to integrate the Contrast agent sidecar with a bas
 ## Setup
 
 1. Copy `terraform.tfvars.example` to `terraform.tfvars`
-2. Fill in your actual values
+2. Fill in your actual values (the only required values are `app_image` and Contrast credentials if `contrast_enabled=true`)
 3. Run:
    ```bash
    terraform init
    terraform plan
    terraform apply
    ```
+
+The configuration will automatically create:
+- VPC with public and private subnets across 2 availability zones
+- Internet Gateway and NAT Gateways for network connectivity
+- Route tables with proper routing configuration
+- Security groups and necessary IAM roles
 
 ## Application Modifications
 

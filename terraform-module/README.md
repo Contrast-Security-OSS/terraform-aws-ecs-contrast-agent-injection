@@ -67,6 +67,10 @@ resource "aws_ecs_task_definition" "app" {
         protocol      = "tcp"
       }]
       
+      # Resource limits (leave room for init container)
+      cpu    = 384
+      memory = 896
+      
       # Environment variables
       environment = concat(
         module.contrast_sidecar.environment_variables,
@@ -118,6 +122,20 @@ module "contrast_sidecar" {
 }
 ```
 
+## Important Notes
+
+### CPU and Memory Allocation
+
+When using this module, remember that ECS requires the sum of all container CPU and memory values to not exceed the task limits, even for init containers. The init container uses 128 CPU units and 128 MB memory by default.
+
+**Example for a 512 CPU / 1024 MB task:**
+- Task CPU: 512 units
+- Task Memory: 1024 MB
+- Init container: 128 CPU + 128 MB (runs at startup only)
+- Application container: 384 CPU + 896 MB (max available)
+
+Even though the init container only runs at startup, you must account for it in your resource allocation.
+
 ## Inputs
 
 | Name | Description | Type | Default | Required |
@@ -138,6 +156,7 @@ module "contrast_sidecar" {
 | `additional_env_vars` | Additional environment variables for Contrast | `map(string)` | `{}` | no |
 | `contrast_agent_version` | Specific version of the Contrast agent | `string` | `latest` | no |
 | `enable_stdout_logging` | Enable agent logging to stdout | `bool` | `true` | no |
+| `log_retention_days` | Number of days to retain CloudWatch logs | `number` | `7` | no |
 | `proxy_settings` | Proxy settings for the Contrast agent | `object` | `null` | no |
 | `tags` | Tags to apply to the Contrast configuration | `map(string)` | `{}` | no |
 

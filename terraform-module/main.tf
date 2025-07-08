@@ -3,34 +3,37 @@
 locals {
   # Define the shared volume name
   volume_name = "contrast-agent-storage"
-  
+
   # Path where the agent will be mounted in the application container
   app_mount_path = "/opt/contrast/java"
-  
+
   # Path where the init container will write the agent
   init_mount_path = "/mnt/contrast"
-  
+
   # Generate a unique server name if not provided
   contrast_server_name = var.server_name != "" ? var.server_name : "${var.application_name}-${data.aws_region.current.id}"
-  
+
   # Build the init container definition
   init_container = var.enabled ? [{
     name      = "contrast-init"
-    image     = var.init_container_image
+    image     = var.contrast_agent_version != "latest" ? "${split(":", var.init_container_image)[0]}:${var.contrast_agent_version}" : var.init_container_image
     essential = false
-    
-    # Command to copy the agent JAR to the shared volume
-    command = [
-      "sh", "-c",
-      "cp /contrast/contrast-agent.jar ${local.init_mount_path}/contrast.jar && echo 'Contrast agent copied successfully'"
-    ]
-    
+
+    # Run as root to have permissions to write to mounted volume
+    user = "0"
+
+    # Set environment variable for the container's entrypoint script
+    environment = [{
+      name  = "CONTRAST_MOUNT_PATH"
+      value = local.init_mount_path
+    }]
+
     # Mount the shared volume
     mountPoints = [{
       sourceVolume  = local.volume_name
       containerPath = local.init_mount_path
     }]
-    
+
     # Logging configuration
     logConfiguration = {
       logDriver = "awslogs"
@@ -40,14 +43,14 @@ locals {
         "awslogs-stream-prefix" = "contrast-init"
       }
     }
-    
+
     # Resource limits for the init container
     cpu    = var.init_container_cpu
-    memory = var.init_container_memory
+    memoryReservation = var.init_container_memory
   }] : []
-  
+
   # Environment variables for the Contrast agent
-  contrast_env_vars = var.enabled ? [
+  contrast_env_vars = var.enabled ? concat([
     {
       name  = "CONTRAST_ENABLED"
       value = "true"
@@ -83,14 +86,55 @@ locals {
     {
       name  = "CONTRAST__AGENT__LOGGER__LEVEL"
       value = var.contrast_log_level
+    },
+    {
+      name  = "CONTRAST__AGENT__LOGGER__STDOUT"
+      value = var.enable_stdout_logging ? "true" : "false"
+    },
+    {
+      name  = "CONTRAST__AGENT__SECURITY_LOGGER__LEVEL"
+      value = var.contrast_log_level
+    },
+    {
+      name  = "CONTRAST__AGENT__SECURITY_LOGGER__STDOUT"
+      value = var.enable_stdout_logging ? "true" : "false"
+    },
+    {
+      name  = "CONTRAST__AGENT__JAVA__SCAN_ALL_CLASSES"
+      value = "false"
+    },
+    {
+      name  = "CONTRAST__AGENT__JAVA__SCAN_ALL_CODE_SOURCES"
+      value = "false"
+    },
+    {
+      name  = "CONTRAST__ASSESS__CACHE__HIERARCHY_ENABLE"
+      value = "false"
     }
-  ] : [
+  ], var.proxy_settings != null ? [
+    {
+      name  = "CONTRAST__PROXY__HOST"
+      value = var.proxy_settings.host
+    },
+    {
+      name  = "CONTRAST__PROXY__PORT"
+      value = tostring(var.proxy_settings.port)
+    },
+    {
+      name  = "CONTRAST__PROXY__USERNAME"
+      value = var.proxy_settings.username
+    },
+    {
+      name  = "CONTRAST__PROXY__PASSWORD"
+      value = var.proxy_settings.password
+    }
+  ] : []) : [
     {
       name  = "CONTRAST_ENABLED"
       value = "false"
     }
   ]
-  
+
   # Additional optional environment variables
   optional_env_vars = var.enabled ? [
     for key, value in var.additional_env_vars : {
@@ -98,20 +142,20 @@ locals {
       value = value
     }
   ] : []
-  
+
   # Application container mount points
   app_mount_points = var.enabled ? [{
     sourceVolume  = local.volume_name
     containerPath = local.app_mount_path
     readOnly      = true
   }] : []
-  
+
   # Dependencies for the application container
   container_dependencies = var.enabled ? [{
     containerName = "contrast-init"
     condition     = "SUCCESS"
   }] : []
-  
+
   # Volume configuration
   volume_config = var.enabled ? {
     name = local.volume_name
@@ -120,3 +164,16 @@ locals {
 
 # Data source for current AWS region
 data "aws_region" "current" {}
+
+# CloudWatch Log Group for init container (conditionally created)
+resource "aws_cloudwatch_log_group" "contrast_init" {
+  count             = var.enabled && var.log_group_name == "/ecs/contrast-init" ? 1 : 0
+  name              = "/ecs/contrast-init"
+  retention_in_days = var.log_retention_days
+  
+  tags = merge(var.tags, {
+    Name        = "contrast-init-logs"
+    Component   = "contrast-agent"
+    Environment = var.environment
+  })
+}

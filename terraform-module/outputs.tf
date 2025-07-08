@@ -32,12 +32,12 @@ output "agent_enabled" {
 
 output "agent_path" {
   description = "Path where the Contrast agent JAR is mounted in the application container"
-  value       = var.enabled ? "${local.app_mount_path}/contrast.jar" : null
+  value       = var.enabled ? "${local.app_mount_path}/contrast-agent.jar" : null
 }
 
 output "java_tool_options" {
   description = "JAVA_TOOL_OPTIONS value for enabling the agent"
-  value       = var.enabled ? "-javaagent:${local.app_mount_path}/contrast.jar" : null
+  value       = var.enabled ? "-javaagent:${local.app_mount_path}/contrast-agent.jar" : null
 }
 
 output "init_container_name" {
@@ -48,4 +48,20 @@ output "init_container_name" {
 output "volume_name" {
   description = "Name of the shared volume"
   value       = var.enabled ? local.volume_name : null
+}
+
+output "contrast_server_name" {
+  description = "The computed Contrast server name"
+  value       = var.enabled ? local.contrast_server_name : null
+}
+
+output "proxy_configured" {
+  description = "Whether proxy settings are configured"
+  value       = var.proxy_settings != null
+  sensitive   = true
+}
+
+output "module_version" {
+  description = "Version of the Contrast agent being used"
+  value       = var.contrast_agent_version
 }
