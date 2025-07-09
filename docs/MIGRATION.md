@@ -1,6 +1,6 @@
 # Migration Guide: From Embedded Agent to Agent Injection Pattern
 
-This guide helps teams migrate from embe5. Enable Contrast agent injection with `contrast_enabled = true`ding the Contrast agent in Docker images to using the agent injection pattern.
+This guide helps teams migrate from embedding the Contrast agent in Docker images to using the agent injection pattern.
 
 ## Why Migrate?
 
@@ -164,7 +164,7 @@ aws cloudwatch get-metric-statistics \
 ```
 
 #### 5.2 Update CI/CD Pipeline
-Remove agent download/installation steps from build process
+Remove agent download/installation steps from the build process
 
 #### 5.3 Update Documentation
 - Update runbooks
@@ -193,7 +193,7 @@ aws ecs update-service \
 ## Common Migration Issues
 
 ### Issue: Different Agent Versions
-**Problem**: Embedded agent is older version than agent injection pattern
+**Problem**: Embedded agent is an older version than agent injection pattern
 **Solution**: Validate all settings migrated correctly, use contrast_security.yaml if needed
 
 ### Issue: Resource Constraints
