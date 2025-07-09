@@ -1,11 +1,39 @@
-# Main Terraform module for ECS Contrast Agent Injection
+# Main Terraform module for ECS Contrast Agent Injection - Multi-Agent Support
 
 locals {
+  # Agent-specific configuration
+  agent_configs = {
+    java = {
+      image_name      = "contrast/agent-java"
+      mount_path      = "/opt/contrast/java"
+      agent_filename  = "contrast-agent.jar"
+      activation_env  = "JAVA_TOOL_OPTIONS"
+      activation_value = "-javaagent:/opt/contrast/java/contrast-agent.jar"
+      specific_env_vars = [
+        {
+          name  = "CONTRAST__AGENT__JAVA__STANDALONE_APP_NAME"
+          value = var.application_name
+        },
+        {
+          name  = "CONTRAST__AGENT__JAVA__SCAN_ALL_CLASSES"
+          value = "false"
+        },
+        {
+          name  = "CONTRAST__AGENT__JAVA__SCAN_ALL_CODE_SOURCES"
+          value = "false"
+        }
+      ]
+    }
+  }
+
+  # Get current agent configuration
+  current_agent_config = local.agent_configs[var.agent_type]
+
   # Define the shared volume name
   volume_name = "contrast-agent-storage"
 
   # Path where the agent will be mounted in the application container
-  app_mount_path = "/opt/contrast/java"
+  app_mount_path = local.current_agent_config.mount_path
 
   # Path where the init container will write the agent
   init_mount_path = "/mnt/contrast"
@@ -13,10 +41,10 @@ locals {
   # Generate a unique server name if not provided
   contrast_server_name = var.server_name != "" ? var.server_name : "${var.application_name}-${data.aws_region.current.id}"
 
-  # Build the init container definition
+  # Build the init container definition with agent-specific image
   init_container = var.enabled ? [{
     name      = "contrast-init"
-    image     = var.contrast_agent_version != "latest" ? "${split(":", var.init_container_image)[0]}:${var.contrast_agent_version}" : var.init_container_image
+    image     = var.contrast_agent_version != "latest" ? "${local.current_agent_config.image_name}:${var.contrast_agent_version}" : "${local.current_agent_config.image_name}:latest"
     essential = false
 
     # Run as root to have permissions to write to mounted volume
@@ -26,6 +54,9 @@ locals {
     environment = [{
       name  = "CONTRAST_MOUNT_PATH"
       value = local.init_mount_path
+    }, {
+      name  = "CONTRAST_AGENT_TYPE"
+      value = var.agent_type
     }]
 
     # Mount the shared volume
@@ -49,8 +80,8 @@ locals {
     memoryReservation = var.init_container_memory
   }] : []
 
-  # Environment variables for the Contrast agent
-  contrast_env_vars = var.enabled ? concat([
+  # Base environment variables for the Contrast agent (common to all agent types)
+  base_contrast_env_vars = var.enabled ? [
     {
       name  = "CONTRAST_ENABLED"
       value = "true"
@@ -73,10 +104,6 @@ locals {
     },
     {
       name  = "CONTRAST__APPLICATION__NAME"
-      value = var.application_name
-    },
-    {
-      name  = "CONTRAST__AGENT__JAVA__STANDALONE_APP_NAME"
       value = var.application_name
     },
     {
@@ -104,59 +131,64 @@ locals {
       value = var.enable_stdout_logging ? "true" : "false"
     },
     {
-      name  = "CONTRAST__AGENT__JAVA__SCAN_ALL_CLASSES"
-      value = "false"
-    },
-    {
-      name  = "CONTRAST__AGENT__JAVA__SCAN_ALL_CODE_SOURCES"
-      value = "false"
-    },
-    {
       name  = "CONTRAST__ASSESS__CACHE__HIERARCHY_ENABLE"
       value = "false"
+    },
+    # Add the activation environment variable
+    {
+      name  = local.current_agent_config.activation_env
+      value = local.current_agent_config.activation_value
     }
-    ], var.proxy_settings != null ? concat([
-      {
-        name  = "CONTRAST__API__PROXY__ENABLE"
-        value = "true"
-    }],
-    var.proxy_settings.url != "" ? [
-      {
-        name  = "CONTRAST__API__PROXY__URL"
-        value = var.proxy_settings.url
-      }] : [
-      {
-        name  = "CONTRAST__API__PROXY__HOST"
-        value = var.proxy_settings.host
-      },
-      {
-        name  = "CONTRAST__API__PROXY__PORT"
-        value = tostring(var.proxy_settings.port)
-      },
-      {
-        name  = "CONTRAST__API__PROXY__SCHEME"
-        value = var.proxy_settings.scheme
-    }],
-    var.proxy_settings.username != "" ? [
-      {
-        name  = "CONTRAST__API__PROXY__USER"
-        value = var.proxy_settings.username
-    }] : [],
-    var.proxy_settings.password != "" ? [
-      {
-        name  = "CONTRAST__API__PROXY__PASS"
-        value = var.proxy_settings.password
-    }] : [],
-    var.proxy_settings.auth_type != "" ? [
-      {
-        name  = "CONTRAST__API__PROXY__AUTH_TYPE"
-        value = var.proxy_settings.auth_type
-    }] : []) : []) : [
+  ] : [
     {
       name  = "CONTRAST_ENABLED"
       value = "false"
     }
   ]
+
+  # Combine base environment variables with agent-specific ones
+  contrast_env_vars = var.enabled ? concat(
+    local.base_contrast_env_vars,
+    local.current_agent_config.specific_env_vars,
+    # Proxy settings if configured
+    var.proxy_settings != null ? concat([
+      {
+        name  = "CONTRAST__API__PROXY__ENABLE"
+        value = "true"
+      }],
+      var.proxy_settings.url != "" ? [
+        {
+          name  = "CONTRAST__API__PROXY__URL"
+          value = var.proxy_settings.url
+        }] : [
+        {
+          name  = "CONTRAST__API__PROXY__HOST"
+          value = var.proxy_settings.host
+        },
+        {
+          name  = "CONTRAST__API__PROXY__PORT"
+          value = tostring(var.proxy_settings.port)
+        },
+        {
+          name  = "CONTRAST__API__PROXY__SCHEME"
+          value = var.proxy_settings.scheme
+        }],
+      var.proxy_settings.username != "" ? [
+        {
+          name  = "CONTRAST__API__PROXY__USER"
+          value = var.proxy_settings.username
+        }] : [],
+      var.proxy_settings.password != "" ? [
+        {
+          name  = "CONTRAST__API__PROXY__PASS"
+          value = var.proxy_settings.password
+        }] : [],
+      var.proxy_settings.auth_type != "" ? [
+        {
+          name  = "CONTRAST__API__PROXY__AUTH_TYPE"
+          value = var.proxy_settings.auth_type
+        }] : []) : []
+  ) : local.base_contrast_env_vars
 
   # Additional optional environment variables
   optional_env_vars = var.enabled ? [

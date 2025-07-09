@@ -61,9 +61,9 @@ variable "contrast_log_level" {
 }
 
 variable "init_container_image" {
-  description = "Docker image for the Contrast init container"
+  description = "Docker image for the Contrast init container (deprecated - image is now determined by agent_type)"
   type        = string
-  default     = "contrast/agent-java:latest"
+  default     = ""
 }
 
 variable "init_container_cpu" {
@@ -156,4 +156,14 @@ variable "tags" {
   description = "Tags to apply to the Contrast configuration"
   type        = map(string)
   default     = {}
+}
+
+variable "agent_type" {
+  description = "Type of Contrast agent to deploy (java)"
+  type        = string
+  default     = "java"
+  validation {
+    condition     = can(regex("^(java)$", var.agent_type))
+    error_message = "Agent type must be one of: java."
+  }
 }

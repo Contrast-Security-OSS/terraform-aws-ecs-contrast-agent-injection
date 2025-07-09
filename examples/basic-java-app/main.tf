@@ -256,6 +256,7 @@ module "contrast_agent_injection" {
   source = "../.."
 
   enabled                = var.contrast_enabled
+  agent_type             = "java"
   application_name       = var.app_name
   contrast_api_url       = var.contrast_api_url
   contrast_api_key       = var.contrast_api_key

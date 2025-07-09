@@ -12,6 +12,7 @@ This module implements a production-ready agent injection pattern for deploying 
 ## Features
 
 - ✅ Zero application image modifications required
+- ✅ Supported languages: Java (future support for .NET, Node.js, Python, PHP)
 - ✅ Dynamic enable/disable through Terraform variables
 - ✅ Environment-based configuration (no config files needed)
 - ✅ Support for proxy configurations
@@ -25,9 +26,10 @@ This module implements a production-ready agent injection pattern for deploying 
 ```hcl
 module "contrast_agent_injection" {
   source  = "Contrast-Security-OSS/ecs-contrast-agent-injection/aws"
-  version = "~> 1.0"
+  version = "~> 2.0"
 
   enabled              = true
+  agent_type           = "java"
   application_name     = "my-java-service"
   contrast_api_key     = var.contrast_api_key
   contrast_service_key = var.contrast_service_key
@@ -139,6 +141,7 @@ No resources are created by this module. It provides data transformations for EC
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_agent_type"></a> [agent\_type](#input\_agent\_type) | Type of Contrast agent to deploy (java) | `string` | `"java"` | no |
 | <a name="input_additional_env_vars"></a> [additional\_env\_vars](#input\_additional\_env\_vars) | Additional environment variables for Contrast configuration | `map(string)` | `{}` | no |
 | <a name="input_application_name"></a> [application\_name](#input\_application\_name) | Name of the application as it will appear in Contrast | `string` | n/a | yes |
 | <a name="input_contrast_agent_version"></a> [contrast\_agent\_version](#input\_contrast\_agent\_version) | Specific version of the Contrast agent to use | `string` | `"latest"` | no |
@@ -162,6 +165,8 @@ No resources are created by this module. It provides data transformations for EC
 
 | Name | Description |
 |------|-------------|
+| <a name="output_agent_activation_env"></a> [agent\_activation\_env](#output\_agent\_activation\_env) | Environment variable name used to activate the agent |
+| <a name="output_agent_activation_value"></a> [agent\_activation\_value](#output\_agent\_activation\_value) | Environment variable value used to activate the agent |
 | <a name="output_agent_enabled"></a> [agent\_enabled](#output\_agent\_enabled) | Whether the Contrast agent is enabled |
 | <a name="output_agent_path"></a> [agent\_path](#output\_agent\_path) | Path where the Contrast agent JAR is mounted in the application container |
 | <a name="output_app_mount_points"></a> [app\_mount\_points](#output\_app\_mount\_points) | Mount points for the application container |
@@ -175,6 +180,7 @@ No resources are created by this module. It provides data transformations for EC
 | <a name="output_proxy_configured"></a> [proxy\_configured](#output\_proxy\_configured) | Whether proxy settings are configured |
 | <a name="output_volume_config"></a> [volume\_config](#output\_volume\_config) | Volume configuration for the task definition |
 | <a name="output_volume_name"></a> [volume\_name](#output\_volume\_name) | Name of the shared volume |
+| <a name="output_agent_type"></a> [agent\_type](#output\_agent\_type) | The type of Contrast agent being used |
 
 ## Architecture
 
@@ -202,6 +208,7 @@ No resources are created by this module. It provides data transformations for EC
 
 - [Basic Java App](./examples/basic-java-app/) - Complete example with ECS task definition
 - [Proxy Configuration](./examples/proxy-configuration/) - Example with corporate proxy settings
+- [Multi-Agent Guide](./docs/MULTI_AGENT_GUIDE.md) - Comprehensive guide for all supported agent types
 
 ## Testing
 

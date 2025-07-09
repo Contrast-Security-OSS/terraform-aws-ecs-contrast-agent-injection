@@ -32,13 +32,13 @@ output "agent_enabled" {
 }
 
 output "agent_path" {
-  description = "Path where the Contrast agent JAR is mounted in the application container"
-  value       = var.enabled ? "${local.app_mount_path}/contrast-agent.jar" : null
+  description = "Path where the Contrast agent is mounted in the application container"
+  value       = var.enabled ? "${local.app_mount_path}/${local.current_agent_config.agent_filename}" : null
 }
 
 output "java_tool_options" {
-  description = "JAVA_TOOL_OPTIONS value for enabling the agent"
-  value       = var.enabled ? "-javaagent:${local.app_mount_path}/contrast-agent.jar" : null
+  description = "Agent activation environment variable value (deprecated - use agent_activation_value instead)"
+  value       = var.enabled && var.agent_type == "java" ? local.current_agent_config.activation_value : null
 }
 
 output "init_container_name" {
@@ -65,4 +65,20 @@ output "proxy_configured" {
 output "module_version" {
   description = "Version of the Contrast agent being used"
   value       = var.contrast_agent_version
+}
+
+output "agent_type" {
+  description = "The type of Contrast agent being used"
+  value       = var.agent_type
+}
+
+output "agent_activation_env" {
+  description = "Environment variable name used to activate the agent"
+  value       = var.enabled ? local.current_agent_config.activation_env : null
+}
+
+output "agent_activation_value" {
+  description = "Environment variable value used to activate the agent"
+  value       = var.enabled ? local.current_agent_config.activation_value : null
+  sensitive   = true
 }
