@@ -74,7 +74,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Testing
+# Coverage and testing artifacts
 .coverage
 *.cover
 .pytest_cache/
@@ -92,3 +92,6 @@ Desktop.ini
 
 # Python virtual environments
 .venv/
+
+# Extra files
+external-docs/
