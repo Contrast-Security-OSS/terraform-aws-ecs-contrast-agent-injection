@@ -2,7 +2,7 @@
 # This example shows how to configure the Contrast agent with a corporate proxy
 
 module "contrast_agent_injection_with_proxy" {
-  source = "../terraform-module"
+  source = "../../terraform-module"
 
   enabled                = true
   application_name       = "my-java-service"
@@ -13,14 +13,26 @@ module "contrast_agent_injection_with_proxy" {
   environment            = "PRODUCTION"
   contrast_log_level     = "INFO"
   contrast_agent_version = "4.0.0"
+  log_group_name         = "/ecs/my-java-service"
 
   # Proxy configuration for corporate environments
+  # Option 1: Using individual host, port, scheme settings
   proxy_settings = {
-    host     = "proxy.company.com"
-    port     = 8080
-    username = var.proxy_username
-    password = var.proxy_password
+    host      = "proxy.company.com"
+    port      = 8080
+    scheme    = "http"
+    username  = var.proxy_username
+    password  = var.proxy_password
+    auth_type = "Basic"
   }
+
+  # Option 2: Using proxy URL (alternative to above)
+  # proxy_settings = {
+  #   url       = "http://proxy.company.com:8080"
+  #   username  = var.proxy_username
+  #   password  = var.proxy_password
+  #   auth_type = "Basic"
+  # }
 
   # Additional environment variables for custom configuration
   additional_env_vars = {

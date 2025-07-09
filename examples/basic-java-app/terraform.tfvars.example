@@ -32,9 +32,20 @@ contrast_log_level      = "INFO"
 contrast_agent_version  = "latest"
 
 # Optional: Proxy Configuration (uncomment if needed)
+# Option 1: Using individual host, port, scheme settings
 # proxy_settings = {
-#   host     = "proxy.company.com"
-#   port     = 8080
-#   username = "proxy_user"
-#   password = "proxy_pass"
+#   host      = "proxy.company.com"
+#   port      = 8080
+#   scheme    = "http"
+#   username  = "proxy_user"
+#   password  = "proxy_pass"
+#   auth_type = "Basic"
+# }
+
+# Option 2: Using proxy URL (alternative to above)
+# proxy_settings = {
+#   url       = "http://proxy.company.com:8080"
+#   username  = "proxy_user"
+#   password  = "proxy_pass"
+#   auth_type = "Basic"
 # }
