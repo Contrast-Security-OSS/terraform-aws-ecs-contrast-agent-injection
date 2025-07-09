@@ -253,7 +253,7 @@ resource "aws_security_group" "app" {
 
 # Contrast Agent Injection Module
 module "contrast_agent_injection" {
-  source = "../../terraform-module"
+  source = "../.."
 
   enabled                = var.contrast_enabled
   application_name       = var.app_name

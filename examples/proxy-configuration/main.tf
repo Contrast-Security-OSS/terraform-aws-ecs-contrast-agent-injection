@@ -2,7 +2,7 @@
 # This example shows how to configure the Contrast agent with a corporate proxy
 
 module "contrast_agent_injection_with_proxy" {
-  source = "../../terraform-module"
+  source = "../.."
 
   enabled                = true
   application_name       = "my-java-service"

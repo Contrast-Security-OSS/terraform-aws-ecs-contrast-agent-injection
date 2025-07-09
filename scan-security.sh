@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 # Script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-MODULE_DIR="$PROJECT_ROOT/terraform-module"
+MODULE_DIR="$PROJECT_ROOT"
 
 # Default values
 OUTPUT_FORMAT="cli"
