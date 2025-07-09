@@ -115,24 +115,43 @@ locals {
       name  = "CONTRAST__ASSESS__CACHE__HIERARCHY_ENABLE"
       value = "false"
     }
-    ], var.proxy_settings != null ? [
+    ], var.proxy_settings != null ? concat([
     {
-      name  = "CONTRAST__PROXY__HOST"
+      name  = "CONTRAST__API__PROXY__ENABLE"
+      value = "true"
+    }], 
+    var.proxy_settings.url != "" ? [
+    {
+      name  = "CONTRAST__API__PROXY__URL"
+      value = var.proxy_settings.url
+    }] : [
+    {
+      name  = "CONTRAST__API__PROXY__HOST"
       value = var.proxy_settings.host
     },
     {
-      name  = "CONTRAST__PROXY__PORT"
+      name  = "CONTRAST__API__PROXY__PORT"
       value = tostring(var.proxy_settings.port)
     },
     {
-      name  = "CONTRAST__PROXY__USERNAME"
-      value = var.proxy_settings.username
-    },
+      name  = "CONTRAST__API__PROXY__SCHEME"
+      value = var.proxy_settings.scheme
+    }],
+    var.proxy_settings.username != "" ? [
     {
-      name  = "CONTRAST__PROXY__PASSWORD"
+      name  = "CONTRAST__API__PROXY__USER"
+      value = var.proxy_settings.username
+    }] : [],
+    var.proxy_settings.password != "" ? [
+    {
+      name  = "CONTRAST__API__PROXY__PASS"
       value = var.proxy_settings.password
-    }
-    ] : []) : [
+    }] : [],
+    var.proxy_settings.auth_type != "" ? [
+    {
+      name  = "CONTRAST__API__PROXY__AUTH_TYPE"
+      value = var.proxy_settings.auth_type
+    }] : []) : []) : [
     {
       name  = "CONTRAST_ENABLED"
       value = "false"

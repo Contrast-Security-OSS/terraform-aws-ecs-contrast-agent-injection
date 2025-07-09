@@ -116,18 +116,38 @@ variable "enable_stdout_logging" {
 variable "proxy_settings" {
   description = "Proxy settings for the Contrast agent"
   type = object({
-    host     = string
-    port     = number
-    username = optional(string, "")
-    password = optional(string, "")
+    url       = optional(string, "")
+    host      = optional(string, "")
+    port      = optional(number, 0)
+    scheme    = optional(string, "http")
+    username  = optional(string, "")
+    password  = optional(string, "")
+    auth_type = optional(string, "")
   })
   default = null
   validation {
     condition = var.proxy_settings == null || (
-      can(regex("^[a-zA-Z0-9.-]+$", var.proxy_settings.host)) &&
-      var.proxy_settings.port > 0 && var.proxy_settings.port <= 65535
+      # Either use URL or host/port/scheme, but not both
+      (var.proxy_settings.url != "" && var.proxy_settings.host == "" && var.proxy_settings.port == 0) ||
+      (var.proxy_settings.url == "" && var.proxy_settings.host != "" && var.proxy_settings.port > 0)
     )
-    error_message = "Proxy host must be a valid hostname/IP and port must be between 1-65535."
+    error_message = "Either specify proxy_url OR host/port/scheme, but not both. If both URL and individual properties are set, an error will be thrown by the agent."
+  }
+  validation {
+    condition = var.proxy_settings == null || var.proxy_settings.url == "" || can(regex("^https?://[a-zA-Z0-9.-]+:[0-9]+$", var.proxy_settings.url))
+    error_message = "Proxy URL must be in format scheme://host:port (e.g., http://proxy.company.com:8080)."
+  }
+  validation {
+    condition = var.proxy_settings == null || var.proxy_settings.host == "" || (
+      can(regex("^[a-zA-Z0-9.-]+$", var.proxy_settings.host)) &&
+      var.proxy_settings.port > 0 && var.proxy_settings.port <= 65535 &&
+      can(regex("^(http|https)$", var.proxy_settings.scheme))
+    )
+    error_message = "Proxy host must be a valid hostname/IP, port must be between 1-65535, and scheme must be http or https."
+  }
+  validation {
+    condition = var.proxy_settings == null || var.proxy_settings.auth_type == "" || can(regex("^(NTLM|Digest|Basic)$", var.proxy_settings.auth_type))
+    error_message = "Proxy auth_type must be one of: NTLM, Digest, Basic."
   }
   sensitive = true
 }

@@ -112,13 +112,23 @@ module "contrast_agent_injection" {
   contrast_user_name   = var.contrast_user_name
   environment          = "production"
   
-  # Proxy configuration
+  # Proxy configuration - Option 1: Individual settings
   proxy_settings = {
-    host     = "proxy.company.com"
-    port     = 8080
-    username = var.proxy_username
-    password = var.proxy_password
+    host      = "proxy.company.com"
+    port      = 8080
+    scheme    = "http"
+    username  = var.proxy_username
+    password  = var.proxy_password
+    auth_type = "Basic"
   }
+
+  # Proxy configuration - Option 2: URL (alternative to above)
+  # proxy_settings = {
+  #   url       = "http://proxy.company.com:8080"
+  #   username  = var.proxy_username
+  #   password  = var.proxy_password
+  #   auth_type = "Basic"
+  # }
 }
 ```
 
@@ -156,8 +166,58 @@ Even though the init container only runs at startup, you must account for it in 
 | `additional_env_vars` | Additional environment variables for Contrast | `map(string)` | `{}` | no |
 | `contrast_agent_version` | Specific version of the Contrast agent | `string` | `latest` | no |
 | `enable_stdout_logging` | Enable agent logging to stdout | `bool` | `true` | no |
-| `proxy_settings` | Proxy settings for the Contrast agent | `object` | `null` | no |
+| `proxy_settings` | Proxy settings for the Contrast agent (see below for structure) | `object` | `null` | no |
 | `tags` | Tags to apply to the Contrast configuration | `map(string)` | `{}` | no |
+
+### Proxy Settings Object
+
+The `proxy_settings` variable accepts an object with the following structure:
+
+```hcl
+# Option 1: Using individual host, port, scheme settings
+proxy_settings = {
+  host      = string           # Proxy hostname or IP address (required when not using url)
+  port      = number           # Proxy port number (required when not using url)
+  scheme    = string           # Proxy protocol: "http" or "https" (optional, default: "http")
+  username  = string           # Proxy authentication username (optional, default: "")
+  password  = string           # Proxy authentication password (optional, default: "")
+  auth_type = string           # Authentication type: "NTLM", "Digest", or "Basic" (optional, default: "")
+}
+
+# Option 2: Using proxy URL (alternative to host/port/scheme)
+proxy_settings = {
+  url       = string           # Proxy URL in format scheme://host:port (e.g., "http://proxy.company.com:8080")
+  username  = string           # Proxy authentication username (optional, default: "")
+  password  = string           # Proxy authentication password (optional, default: "")
+  auth_type = string           # Authentication type: "NTLM", "Digest", or "Basic" (optional, default: "")
+}
+```
+
+**Note:** You must use either `url` OR `host`/`port`/`scheme`, but not both. If both are specified, the Contrast agent will throw an error.
+
+**Examples:**
+
+Using individual settings:
+```hcl
+proxy_settings = {
+  host      = "proxy.company.com"
+  port      = 8080
+  scheme    = "https"
+  username  = "proxy_user"
+  password  = "proxy_pass"
+  auth_type = "Basic"
+}
+```
+
+Using proxy URL:
+```hcl
+proxy_settings = {
+  url       = "https://proxy.company.com:8080"
+  username  = "proxy_user"
+  password  = "proxy_pass"
+  auth_type = "Basic"
+}
+```
 
 ## Outputs
 

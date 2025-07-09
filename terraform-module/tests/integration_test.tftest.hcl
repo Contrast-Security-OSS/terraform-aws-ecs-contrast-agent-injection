@@ -20,10 +20,12 @@ variables {
     "CUSTOM_CONFIG"    = "production-value"
   }
   proxy_settings = {
-    host     = "corp-proxy.company.com"
-    port     = 8080
-    username = "proxy-service-account"
-    password = "secure-proxy-password"
+    host      = "corp-proxy.company.com"
+    port      = 8080
+    scheme    = "https"
+    username  = "proxy-service-account"
+    password  = "secure-proxy-password"
+    auth_type = "Basic"
   }
 }
 
@@ -153,7 +155,7 @@ run "integration_test_environment_variables" {
   assert {
     condition = length([
       for env in local.contrast_env_vars : env
-      if env.name == "CONTRAST__PROXY__HOST" && env.value == "corp-proxy.company.com"
+      if env.name == "CONTRAST__API__PROXY__HOST" && env.value == "corp-proxy.company.com"
     ]) == 1
     error_message = "Should set proxy host"
   }
@@ -161,7 +163,7 @@ run "integration_test_environment_variables" {
   assert {
     condition = length([
       for env in local.contrast_env_vars : env
-      if env.name == "CONTRAST__PROXY__PORT" && env.value == "8080"
+      if env.name == "CONTRAST__API__PROXY__PORT" && env.value == "8080"
     ]) == 1
     error_message = "Should set proxy port"
   }

@@ -195,3 +195,45 @@ run "environment_variables_count" {
     error_message = "Should include standalone app name environment variable"
   }
 }
+
+run "proxy_url_validation" {
+  command = plan
+
+  variables {
+    enabled              = true
+    application_name     = "proxy-url-validation-test"
+    contrast_api_key     = "test-api-key"
+    contrast_service_key = "test-service-key"
+    contrast_user_name   = "test-user"
+    environment          = "DEVELOPMENT"
+    log_group_name       = "test-log-group"
+    proxy_settings = {
+      url = "https://proxy.company.com:8080"
+    }
+  }
+
+  # This should pass with valid URL format
+  assert {
+    condition = length([
+      for env in local.contrast_env_vars : env
+      if env.name == "CONTRAST__API__PROXY__URL" && env.value == "https://proxy.company.com:8080"
+    ]) == 1
+    error_message = "Should set proxy URL correctly"
+  }
+
+  assert {
+    condition = length([
+      for env in local.contrast_env_vars : env
+      if env.name == "CONTRAST__API__PROXY__HOST"
+    ]) == 0
+    error_message = "Should not set individual proxy settings when URL is used"
+  }
+
+  assert {
+    condition = length([
+      for env in local.contrast_env_vars : env
+      if env.name == "CONTRAST__API__PROXY__ENABLE" && env.value == "true"
+    ]) == 1
+    error_message = "Should enable proxy when URL is configured"
+  }
+}
