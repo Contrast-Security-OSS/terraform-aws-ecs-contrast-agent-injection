@@ -8,6 +8,7 @@ output "init_container_definitions" {
 output "environment_variables" {
   description = "Environment variables for the application container"
   value       = concat(local.contrast_env_vars, local.optional_env_vars)
+  sensitive   = true
 }
 
 output "app_mount_points" {

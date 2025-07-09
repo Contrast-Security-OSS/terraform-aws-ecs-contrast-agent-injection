@@ -1,0 +1,239 @@
+# Terraform Module Testing
+
+This directory contains comprehensive unit tests for the ECS Contrast Agent Injection Terraform module using Terraform's native testing framework.
+
+## Test Structure
+
+The tests are organized into several files, each focusing on specific aspects of the module:
+
+### Test Files
+
+1. **`agent_disabled.tftest.hcl`** - Tests behavior when the Contrast agent is disabled
+   - Validates that no containers, volumes, or dependencies are created
+   - Ensures outputs return appropriate null/false values
+   - Verifies only `CONTRAST_ENABLED=false` environment variable is set
+
+2. **`agent_enabled_basic.tftest.hcl`** - Tests basic enabled configuration
+   - Validates init container creation and configuration
+   - Tests volume and mount point setup
+   - Verifies container dependencies
+   - Checks basic environment variables
+
+3. **`custom_configuration.tftest.hcl`** - Tests custom configuration options
+   - Custom server names and agent versions
+   - Different environments (PRODUCTION, QA, DEVELOPMENT)
+   - Custom resource limits and logging settings
+   - Additional environment variables
+
+4. **`proxy_configuration.tftest.hcl`** - Tests proxy settings
+   - Proxy with authentication
+   - Proxy without authentication
+   - No proxy configuration
+
+5. **`validation_edge_cases.tftest.hcl`** - Tests edge cases and validation logic
+   - Default server name generation
+   - Different environment formats
+   - Minimal configurations
+   - Security optimization settings
+
+6. **`integration_test.tftest.hcl`** - Comprehensive integration test
+   - Tests complete configuration with all features enabled
+   - Validates all outputs
+   - End-to-end functionality verification
+
+## Running Tests
+
+### Prerequisites
+
+- Terraform 1.6.0 or later (required for native testing)
+- Access to AWS (for region data source, but tests use `plan` mode only)
+
+### Running All Tests
+
+Use the provided test runner script:
+
+```bash
+./run_tests.sh
+```
+
+This script will:
+- Initialize Terraform if needed
+- Run all test files sequentially
+- Provide colored output and summary
+- Exit with appropriate status codes
+
+### Running Individual Tests
+
+Run a specific test file:
+
+```bash
+terraform test -filter=tests/agent_disabled.tftest.hcl
+```
+
+Run with verbose output to see plan details:
+
+```bash
+terraform test -filter=tests/agent_enabled_basic.tftest.hcl -verbose
+```
+
+### Running Tests in Different Modes
+
+Run tests in parallel (where supported):
+
+```bash
+terraform test
+```
+
+Generate JUnit XML output for CI/CD:
+
+```bash
+terraform test -junit-xml=test-results.xml
+```
+
+## Test Coverage
+
+The test suite covers:
+
+### Functional Areas
+
+- ✅ **Agent Enablement**: On/off behavior and outputs
+- ✅ **Container Configuration**: Init container setup and resource limits
+- ✅ **Volume Management**: Shared volume creation and mount points
+- ✅ **Environment Variables**: All Contrast configuration variables
+- ✅ **Proxy Settings**: Different proxy configurations
+- ✅ **Logging Configuration**: CloudWatch logging setup
+- ✅ **Version Management**: Agent version handling
+- ✅ **Server Naming**: Custom and auto-generated server names
+- ✅ **Dependencies**: Container startup dependencies
+
+### Edge Cases
+
+- ✅ **Minimal Configuration**: Required parameters only
+- ✅ **Maximum Configuration**: All optional parameters
+- ✅ **Default Values**: Proper fallback behavior
+- ✅ **Validation Logic**: Input validation and constraints
+- ✅ **Security Settings**: Performance and security optimizations
+
+### Output Validation
+
+- ✅ **Container Definitions**: Init container specifications
+- ✅ **Environment Variables**: Complete environment setup
+- ✅ **Mount Points**: Volume mounting configuration
+- ✅ **Dependencies**: Container dependency chains
+- ✅ **Metadata**: Version and configuration status
+
+## Test Patterns
+
+### Assertion Patterns
+
+The tests use several common assertion patterns:
+
+```hcl
+# Check for specific environment variable
+assert {
+  condition = length([
+    for env in local.contrast_env_vars : env
+    if env.name == "CONTRAST_ENABLED" && env.value == "true"
+  ]) == 1
+  error_message = "Should enable Contrast agent"
+}
+
+# Check output values
+assert {
+  condition     = output.agent_enabled == true
+  error_message = "Agent should be enabled"
+}
+
+# Check array lengths
+assert {
+  condition     = length(local.init_container) == 1
+  error_message = "Should have exactly one init container"
+}
+```
+
+### Variable Patterns
+
+Tests use the `variables` block in `run` blocks for test-specific configuration:
+
+```hcl
+run "test_name" {
+  command = plan
+
+  variables {
+    enabled = true
+    application_name = "test-app"
+    # ... other variables
+  }
+
+  assert {
+    # ... assertions
+  }
+}
+```
+
+## Continuous Integration
+
+### GitHub Actions Example
+
+```yaml
+name: Terraform Tests
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.6.0"
+      - name: Run Tests
+        run: |
+          cd terraform-module
+          ./run_tests.sh
+```
+
+### Test Results
+
+The test runner provides:
+- Colored console output
+- Individual test pass/fail status
+- Overall summary with counts
+- Exit codes for CI/CD integration
+
+## Best Practices
+
+1. **Use Plan Mode**: Tests use `command = plan` to avoid creating real resources
+2. **Descriptive Names**: Test names clearly describe what they validate
+3. **Isolated Tests**: Each test is independent and can run standalone
+4. **Comprehensive Coverage**: Tests cover both happy path and edge cases
+5. **Clear Assertions**: Each assertion has a descriptive error message
+6. **Organized Structure**: Tests are grouped by functionality
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Terraform Version**: Ensure you're using Terraform 1.6.0+
+2. **AWS Credentials**: While tests don't create resources, AWS credentials may be needed for data sources
+3. **Test Isolation**: Each test runs independently, but ensure no state conflicts
+
+### Debug Output
+
+For detailed debugging, use verbose mode:
+
+```bash
+terraform test -verbose
+```
+
+This shows the actual plan output for each run block, helping identify configuration issues.
+
+## Contributing
+
+When adding new features to the module:
+
+1. Add corresponding test cases
+2. Follow existing test patterns
+3. Ensure tests cover both positive and negative scenarios
+4. Update this documentation if needed
+5. Run the full test suite before submitting changes

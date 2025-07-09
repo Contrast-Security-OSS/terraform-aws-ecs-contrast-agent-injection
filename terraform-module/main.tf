@@ -76,7 +76,7 @@ locals {
       value = var.application_name
     },
     {
-      name = "CONTRAST__AGENT__JAVA__STANDALONE_APP_NAME"
+      name  = "CONTRAST__AGENT__JAVA__STANDALONE_APP_NAME"
       value = var.application_name
     },
     {
