@@ -101,7 +101,44 @@ secrets = [
 - Commit secrets to git
 - Share secrets between environments
 
-### 3. Tagging Strategy
+### 3. Proxy Configuration
+
+**✅ DO:**
+```hcl
+# Option 1: Use proxy URL for simplicity
+proxy_settings = {
+  url       = "https://proxy.company.com:8080"
+  username  = var.proxy_username
+  password  = var.proxy_password
+  auth_type = "Basic"
+}
+
+# Option 2: Use individual settings for flexibility
+proxy_settings = {
+  host      = "proxy.company.com"
+  port      = 8080
+  scheme    = "https"
+  username  = var.proxy_username
+  password  = var.proxy_password
+  auth_type = "Basic"
+}
+```
+
+**✅ Best Practices:**
+- Use URL format for simplicity when possible
+- Store proxy credentials securely (Secrets Manager)
+- Choose appropriate authentication method (Basic, NTLM, Digest)
+- Test proxy connectivity in development first
+- Use HTTPS proxy scheme when available
+- Document proxy requirements for the team
+
+**❌ DON'T:**
+- Mix URL and individual host/port/scheme settings
+- Hardcode proxy credentials in code
+- Use unencrypted HTTP proxy for sensitive data
+- Skip testing proxy configuration
+
+### 4. Tagging Strategy
 
 **✅ DO:**
 ```hcl
