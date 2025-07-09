@@ -87,19 +87,8 @@ variable "init_container_memory" {
 }
 
 variable "log_group_name" {
-  description = "CloudWatch log group name for the init container (defaults to /ecs/contrast-init)"
+  description = "CloudWatch log group name for the init container (must be created externally)"
   type        = string
-  default     = "/ecs/contrast-init"
-}
-
-variable "log_retention_days" {
-  description = "Number of days to retain CloudWatch logs"
-  type        = number
-  default     = 7
-  validation {
-    condition     = contains([1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653], var.log_retention_days)
-    error_message = "Log retention must be a valid CloudWatch log retention period."
-  }
 }
 
 variable "additional_env_vars" {

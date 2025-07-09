@@ -264,7 +264,6 @@ module "contrast_agent_injection" {
   environment            = var.environment
   contrast_log_level     = var.contrast_log_level
   log_group_name         = aws_cloudwatch_log_group.contrast.name
-  log_retention_days     = 14
   contrast_agent_version = var.contrast_agent_version
   enable_stdout_logging  = true
 

@@ -38,7 +38,7 @@ locals {
     logConfiguration = {
       logDriver = "awslogs"
       options = {
-        "awslogs-group"         = var.log_group_name != "" ? var.log_group_name : "/ecs/contrast-init"
+        "awslogs-group"         = var.log_group_name
         "awslogs-region"        = data.aws_region.current.id
         "awslogs-stream-prefix" = "contrast-init"
       }
@@ -73,6 +73,10 @@ locals {
     },
     {
       name  = "CONTRAST__APPLICATION__NAME"
+      value = var.application_name
+    },
+    {
+      name = "CONTRAST__AGENT__JAVA__STANDALONE_APP_NAME"
       value = var.application_name
     },
     {
@@ -164,16 +168,3 @@ locals {
 
 # Data source for current AWS region
 data "aws_region" "current" {}
-
-# CloudWatch Log Group for init container (conditionally created)
-resource "aws_cloudwatch_log_group" "contrast_init" {
-  count             = var.enabled && var.log_group_name == "/ecs/contrast-init" ? 1 : 0
-  name              = "/ecs/contrast-init"
-  retention_in_days = var.log_retention_days
-
-  tags = merge(var.tags, {
-    Name        = "contrast-init-logs"
-    Component   = "contrast-agent"
-    Environment = var.environment
-  })
-}

@@ -152,11 +152,10 @@ Even though the init container only runs at startup, you must account for it in 
 | `init_container_image` | Docker image for the Contrast init container | `string` | `contrast/agent-java:latest` | no |
 | `init_container_cpu` | CPU units for the init container | `number` | `128` | no |
 | `init_container_memory` | Memory (MB) for the init container | `number` | `128` | no |
-| `log_group_name` | CloudWatch log group name for init container | `string` | `""` | no |
+| `log_group_name` | CloudWatch log group name for init container (must be created externally) | `string` | n/a | **yes** |
 | `additional_env_vars` | Additional environment variables for Contrast | `map(string)` | `{}` | no |
 | `contrast_agent_version` | Specific version of the Contrast agent | `string` | `latest` | no |
 | `enable_stdout_logging` | Enable agent logging to stdout | `bool` | `true` | no |
-| `log_retention_days` | Number of days to retain CloudWatch logs | `number` | `7` | no |
 | `proxy_settings` | Proxy settings for the Contrast agent | `object` | `null` | no |
 | `tags` | Tags to apply to the Contrast configuration | `map(string)` | `{}` | no |
 
