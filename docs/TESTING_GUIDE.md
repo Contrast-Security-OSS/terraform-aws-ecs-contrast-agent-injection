@@ -1,275 +1,79 @@
-# Robust E2E Testing Implementation Guide
+# Testing Documentation (Deprecated)
 
 ## Overview
 
-This guide outlines the comprehensive end-to-end testing strategy implemented for the ECS Contrast Agent Injection Terraform module. The testing framework provides robust validation across multiple dimensions including functionality, performance, security, and operational resilience.
+**Note: The comprehensive testing framework mentioned in this guide has been removed from this repository.** 
 
-## Testing Architecture
+This document is kept for reference purposes only. For current validation, use the basic Terraform validation available in the Makefile:
 
-### 1. **Multi-Layer Testing Strategy**
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    E2E Testing Layers                      │
-├─────────────────────────────────────────────────────────────┤
-│ Unit Tests           │ Module validation, variable checks   │
-│ Integration Tests    │ AWS resource creation, API testing   │
-│ E2E Tests           │ Full deployment scenarios            │
-│ Chaos Tests         │ Resilience and failure recovery      │
-│ Performance Tests   │ Resource usage and timing            │
-│ Security Tests      │ Vulnerability and compliance         │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### 2. **Test Categories Implementation**
-
-#### **Basic Functionality Tests**
-- ✅ Module deployment with agent enabled/disabled
-- ✅ Container initialization and agent injection
-- ✅ Environment variable configuration
-- ✅ Volume mounting and shared storage
-- ✅ Container dependencies and startup order
-
-#### **Proxy Configuration Tests**
-- ✅ HTTP proxy without authentication
-- ✅ HTTPS proxy configurations
-- ✅ Authenticated proxy scenarios
-- ✅ Proxy failure handling and fallback
-
-#### **Resource Constraint Tests**
-- ✅ Minimal resource allocation testing
-- ✅ Large-scale resource scenarios
-- ✅ Resource limit validation
-- ✅ Memory and CPU usage monitoring
-
-#### **Chaos Engineering Tests**
-- ✅ Task termination and recovery
-- ✅ Network partition simulation
-- ✅ Resource exhaustion scenarios
-- ✅ Service scaling under stress
-
-#### **Performance and Stability Tests**
-- ✅ Long-running stability monitoring
-- ✅ Resource usage trending
-- ✅ Deployment time optimization
-- ✅ Agent initialization performance
-
-#### **Multi-Region and Upgrade Tests**
-- ✅ Cross-region deployment validation
-- ✅ Version upgrade scenarios
-- ✅ Rolling update behavior
-- ✅ Rollback procedures
-
-## Implementation Details
-
-### 3. **Test Infrastructure**
-
-#### **Test Fixtures and Helpers**
-```go
-// AWS Helper - Provides utilities for AWS operations
-type AWSHelper struct {
-    ecsClient *ecs.Client
-    cwlClient *logs.Client
-    region    string
-}
-
-// Contrast Helper - Provides utilities for Contrast API validation
-type ContrastHelper struct {
-    apiURL     string
-    apiKey     string
-    serviceKey string
-    userName   string
-}
-
-// Terraform Helper - Provides utilities for Terraform operations
-type TerraformHelper struct {
-    options *terraform.Options
-    t       testing.TestingT
-}
-```
-
-#### **Test Fixtures Structure**
-```
-test/fixtures/
-├── basic/          # Basic functionality testing
-├── proxy/          # Proxy configuration testing
-├── multi-env/      # Multi-environment testing
-└── disabled/       # Disabled agent testing
-```
-
-#### **Automated Test Execution**
 ```bash
-# Run comprehensive test suite
-./test/run-tests.sh --test-types unit,integration,e2e --parallel 4
-
-# Run specific test categories
-make test-proxy          # Proxy configuration tests
-make test-chaos          # Chaos engineering tests
-make test-performance    # Performance tests
-make test-stability      # Long-running stability tests
+make validate          # Run Terraform validation and linting
+make lint-terraform    # Run Terraform linting only  
+make security-module   # Run security scanning
 ```
 
-### 4. **Key Testing Features**
+## Current Validation Options
 
-#### **Parallel Test Execution**
-- Tests run in parallel for faster feedback
-- Resource isolation prevents conflicts
-- Configurable parallelism levels
+### 1. Basic Terraform Validation
+The Makefile provides basic validation capabilities:
+- Terraform syntax and configuration validation
+- Terraform formatting checks
+- Basic linting with tflint (if installed)
+- Security scanning with tfsec and checkov
 
-#### **Resource Management**
-- Automatic cleanup on test completion
-- Force cleanup for stuck resources
-- Resource tagging for identification
+### 2. Manual Testing Approach
+For thorough validation of your deployment:
 
-#### **Comprehensive Validation**
-- Task definition structure validation
-- Container dependency verification
-- Environment variable validation
-- Log analysis and pattern matching
+1. **Deploy to Test Environment**
+   ```bash
+   cd examples/basic-java-app
+   terraform apply -var="contrast_enabled=true"
+   ```
 
-#### **Failure Simulation**
-- Network connectivity issues
-- Invalid credentials testing
-- Resource constraint scenarios
-- Image pull failures
+2. **Verify Agent Injection**
+   - Check CloudWatch logs for init container completion
+   - Verify application container starts with agent
+   - Confirm application appears in Contrast TeamServer
 
-### 5. **CI/CD Integration**
+3. **Test Agent Toggle**
+   ```bash
+   terraform apply -var="contrast_enabled=false"  # Disable agent
+   terraform apply -var="contrast_enabled=true"   # Re-enable agent
+   ```
 
-#### **GitHub Actions Workflow**
-```yaml
-# Multi-stage testing pipeline
-stages:
-  - validate     # Code validation and formatting
-  - security     # Security scanning
-  - unit-tests   # Unit test execution
-  - integration  # Integration testing
-  - e2e-tests    # End-to-end scenarios
-  - nightly      # Long-running stability tests
-```
-
-#### **Test Matrix Strategy**
-- Multiple AWS regions (us-east-1, us-west-2)
-- Different test groups (basic, proxy, chaos, performance)
-- Parallel execution for faster results
-- Artifact collection for analysis
-
-### 6. **Monitoring and Reporting**
-
-#### **Test Metrics Collection**
-- Deployment timing metrics
-- Resource usage monitoring
-- Service stability measurements
-- Performance benchmarking
-
-#### **Coverage Reporting**
-- Code coverage analysis
-- Test coverage tracking
-- Coverage reports in CI/CD
-- Trend analysis over time
-
-#### **Failure Analysis**
-- Detailed error logging
-- Infrastructure debugging tools
-- Resource state inspection
-- Log aggregation and analysis
-
-## Best Practices Implemented
-
-### 7. **Test Design Principles**
-
-#### **Isolation and Independence**
-- Each test uses unique resource names
-- Tests can run in parallel without conflicts
-- No shared state between test runs
-
-#### **Reproducibility**
-- Deterministic test execution
-- Consistent environment setup
-- Predictable resource allocation
-
-#### **Fail-Fast Strategy**
-- Early validation of prerequisites
-- Quick feedback on configuration issues
-- Efficient resource utilization
-
-#### **Comprehensive Cleanup**
-- Automatic resource cleanup
-- Force cleanup for stuck resources
-- Cost optimization through cleanup
-
-### 8. **Performance Optimization**
-
-#### **Test Execution Speed**
-- Parallel test execution
-- Efficient resource provisioning
-- Smart test ordering and dependencies
-
-#### **Resource Efficiency**
-- Minimal viable resource allocation
-- Shared infrastructure where possible
-- Cost-effective testing strategies
-
-#### **Feedback Loops**
-- Quick unit test feedback
-- Progressive testing complexity
-- Early failure detection
-
-## Usage Examples
-
-### 9. **Running Tests Locally**
-
-#### **Setup Environment**
+### 3. Security Validation
 ```bash
-# Install dependencies
-make dev-setup
-
-# Configure credentials
-export CONTRAST_API_KEY="your-api-key"
-export CONTRAST_SERVICE_KEY="your-service-key"
-export CONTRAST_USER_NAME="your-username"
-export AWS_REGION="us-east-1"
-
-# Run test setup
-make test-setup
+make security-module          # Basic security scan
+make security-module-detailed # Detailed scan with SARIF output
 ```
 
-#### **Execute Test Suites**
-```bash
-# Quick tests (unit only)
-make test-quick
+## Implementing Your Own Tests
 
-# Full test suite
-make test-all
+If you need comprehensive testing, consider these frameworks:
 
-# Specific test categories
-make test-proxy
-make test-chaos
-make test-performance
+- **Terratest**: For infrastructure testing in Go
+- **Kitchen-Terraform**: For Chef-style testing
+- **Pytest + Terraform**: For Python-based testing
+- **Custom Scripts**: Using AWS CLI and application-specific validation
 
-# Debug specific test
-make debug-test
-# Enter test name: TestBasicFunctionality
-```
+## Migration from Previous Testing Framework
 
-### 10. **CI/CD Integration**
+If you were using the previous testing framework:
 
-#### **Pull Request Testing**
-- Automatic validation on PR creation
-- Unit and integration tests
-- Security scanning
-- Code formatting checks
+1. The `test/` directory and all Go-based tests have been removed
+2. Makefile targets starting with `test-*` have been removed  
+3. Use the current validation options above instead
+4. Consider implementing custom tests if comprehensive validation is needed
 
-#### **Main Branch Testing**
-- Full test suite execution
-- E2E test validation
-- Deployment verification
-- Release preparation
+For questions about testing strategies, refer to the [troubleshooting guide](./TROUBLESHOOTING.md) or open an issue in this repository.
 
-#### **Nightly Testing**
-- Long-running stability tests
-- Multi-region validation
-- Performance benchmarking
-- Comprehensive reporting
+## Note on Advanced Testing
+
+The following sections contain examples from the previous testing framework that has been removed. They are preserved for reference only. If you need advanced testing capabilities, consider implementing custom solutions using the frameworks mentioned in the "Implementing Your Own Tests" section above.
+
+### **Previous Framework Examples (Reference Only)**
+
+The following Go test examples show what was previously implemented but are no longer available:
 
 ## Advanced Testing Scenarios
 
@@ -339,64 +143,41 @@ func TestLongRunningStability(t *testing.T) {
 
 ## Troubleshooting Guide
 
-### 13. **Common Issues and Solutions**
+### **Common Issues and Solutions**
 
-#### **Test Environment Issues**
+#### **Environment Issues**
 ```bash
-# Check prerequisites
-make check-deps
+# Check prerequisites - this target exists
+make check-prereqs
 
-# Verify environment variables
+# Check environment variables - this target exists
 make check-env
 
-# Debug infrastructure
-make debug-infrastructure
+# Debug infrastructure using AWS CLI
+aws ecs list-clusters
+aws ecs describe-clusters --clusters your-cluster-name
 ```
 
-#### **Test Failures**
+#### **Deployment Failures**
 ```bash
-# Keep resources for investigation
-export KEEP_RESOURCES=true
-make test-e2e
-
-# View detailed logs
+# View detailed Terraform logs
 export TF_LOG=DEBUG
-make test-verbose
+terraform plan
+terraform apply
 
-# Run specific failing test
-make debug-test
+# Check CloudWatch logs
+aws logs describe-log-groups --log-group-name-prefix "/ecs/"
 ```
 
 #### **Resource Cleanup**
 ```bash
-# Standard cleanup
-make test-cleanup
-
-# Force cleanup all test resources
-make test-cleanup-force
+# Standard Terraform cleanup
+terraform destroy
 
 # Manual cleanup investigation
 aws ecs list-clusters --query 'clusterArns[?contains(@, `test-`)]'
 aws ec2 describe-vpcs --filters "Name=tag:Test,Values=true"
 ```
-
-### 14. **Monitoring and Alerting**
-
-#### **Test Result Monitoring**
-- GitHub Actions workflow status
-- Test coverage trending
-- Performance metric tracking
-- Failure rate analysis
-
-#### **Alert Configuration**
-- Slack notifications on failures
-- Email alerts for nightly tests
-- Dashboard integration
-- Metric threshold monitoring
-
-## Continuous Improvement
-
-### 15. **Test Evolution Strategy**
 
 #### **Regular Review Process**
 - Monthly test effectiveness review

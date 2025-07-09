@@ -119,14 +119,14 @@ tags = {
 ### 1. Rollout Strategy
 
 **✅ DO:**
-- Start with test environments
+- Start with development environments
 - Use canary deployments
 - Monitor metrics during rollout
 - Have rollback plan ready
 
 **Recommended Progression:**
 1. Development (1 week)
-2. QA (1 week)
+2. QA (1 week)  
 3. Staging (2 weeks)
 4. Production Canary 10% (1 week)
 5. Production 100% (1 week)
@@ -300,7 +300,7 @@ export JAVA_TOOL_OPTIONS="-javaagent:/opt/contrast/java/contrast-agent.jar -java
 
 **✅ DO:**
 - Pin agent versions in production
-- Test updates in lower environments
+- Validate updates in lower environments
 - Review release notes
 - Plan quarterly updates
 

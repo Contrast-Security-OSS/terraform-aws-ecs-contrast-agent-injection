@@ -181,7 +181,7 @@ Even though the init container only runs at startup, you must account for it in 
 
 ## Security Scanning
 
-This module includes configuration for security scanning with Checkov, isolated from the examples and test configurations.
+This module includes configuration for security scanning with Checkov, isolated from the examples.
 
 ### Quick Security Scan
 
@@ -222,7 +222,7 @@ make security-module
 
 Security scanning is configured via `.checkov.yml` in this directory. The configuration:
 
-- Excludes examples, tests, and other non-module directories
+- Excludes examples and other non-module directories
 - Focuses only on the Terraform module files
 - Outputs both CLI and SARIF formats when requested
 - Supports baseline creation for CI/CD workflows

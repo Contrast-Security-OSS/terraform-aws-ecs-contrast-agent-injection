@@ -99,9 +99,9 @@ resource "aws_ecs_task_definition" "app" {
 }
 ```
 
-### Phase 3: Testing
+### Phase 3: Validation
 
-#### 3.1 Deploy to Test Environment
+#### 3.1 Deploy to Development Environment
 1. Build new application image WITHOUT embedded agent
 2. Deploy with `contrast_enabled = false`
 3. Verify application works without any agent
@@ -194,15 +194,11 @@ aws ecs update-service \
 
 ### Issue: Different Agent Versions
 **Problem**: Embedded agent is older version than agent injection pattern
-**Solution**: Test thoroughly, check release notes for breaking changes
-
-### Issue: Configuration Differences
-**Problem**: YAML config file vs environment variables behave differently
 **Solution**: Validate all settings migrated correctly, use contrast_security.yaml if needed
 
 ### Issue: Resource Constraints
 **Problem**: Agent injection pattern uses slightly more memory (init container overhead)
-**Solution**: Add 128MB to task memory allocation
+**Solution**: Add 128MB to memory allocation
 
 ## Success Metrics
 
