@@ -187,4 +187,4 @@ For issues or questions:
 
 ## License
 
-This module is maintained by Contrast Security.
+This module is maintained by Contrast Security and is licensed under the Apache License 2.0.
