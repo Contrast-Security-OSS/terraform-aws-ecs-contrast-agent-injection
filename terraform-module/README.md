@@ -1,6 +1,13 @@
-# Terraform Module: ECS Contrast Agent Injection
+# Terraform AWS ECS Contrast Agent Injection
 
-This Terraform module provides a reusable pattern for deploying the Contrast Security agent using an agent injection pattern in AWS ECS tasks.
+[![Terraform Registry](https://img.shields.io/badge/terraform-registry-blue.svg)](https://registry.terraform.io/modules/Contrast-Security-OSS/ecs-contrast-agent-injection/aws)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+A Terraform module for deploying the Contrast Security agent to Amazon ECS tasks using an agent injection pattern with init containers and shared volumes.
+
+## Description
+
+This module implements a production-ready agent injection pattern for deploying the Contrast Security agent alongside Java applications in AWS ECS using init containers and shared volumes. The pattern enables zero-downtime agent deployment without requiring modifications to application container images.
 
 ## Features
 
@@ -17,7 +24,8 @@ This Terraform module provides a reusable pattern for deploying the Contrast Sec
 
 ```hcl
 module "contrast_agent_injection" {
-  source = "../terraform-module"
+  source  = "Contrast-Security-OSS/ecs-contrast-agent-injection/aws"
+  version = "~> 1.0"
 
   enabled              = true
   application_name     = "my-java-service"
@@ -103,7 +111,8 @@ resource "aws_ecs_task_definition" "app" {
 
 ```hcl
 module "contrast_agent_injection" {
-  source = "../terraform-module"
+  source  = "Contrast-Security-OSS/ecs-contrast-agent-injection/aws"
+  version = "~> 1.0"
 
   enabled              = true
   application_name     = "my-java-service"
@@ -296,6 +305,35 @@ For CI/CD pipelines, use the SARIF output:
 ```
 
 This generates `checkov-results.sarif` that can be consumed by GitHub Advanced Security, Azure DevOps, or other SARIF-compatible tools.
+
+## Versioning
+
+This module follows [Semantic Versioning](https://semver.org/). When using this module, we recommend:
+
+- **Production environments**: Use exact versions (e.g., `version = "1.2.3"`)
+- **Development environments**: Use version constraints (e.g., `version = "~> 1.0"`)
+
+## Terraform Registry
+
+Once published, this module will be available in the Terraform Registry as:
+
+```hcl
+module "contrast_agent_injection" {
+  source  = "Contrast-Security-OSS/ecs-contrast-agent-injection/aws"
+  version = "~> 1.0"
+  
+  # ... configuration
+}
+```
+
+## Contributing
+
+This project is open source and contributions are welcome! Please see the [GitHub repository](https://github.com/Contrast-Security-OSS/terraform-contrast-ecs-agent-injection) for:
+
+- Issue reporting and feature requests
+- Contributing guidelines  
+- Development setup instructions
+- Code of conduct
 
 ## License
 

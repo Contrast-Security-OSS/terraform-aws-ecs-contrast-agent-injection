@@ -26,7 +26,8 @@ content: |-
 
   ```hcl
   module "contrast_agent_injection" {
-    source = "./terraform-module"
+    source  = "Contrast-Security-OSS/ecs-contrast-agent-injection/aws"
+    version = "~> 1.0"
 
     enabled              = true
     application_name     = "my-java-service"
@@ -36,6 +37,8 @@ content: |-
     environment          = "PRODUCTION"
   }
   ```
+
+  For complete examples, see the [GitHub repository](https://github.com/Contrast-Security-OSS/terraform-contrast-ecs-agent-injection/tree/main/examples).
 
   {{ .Requirements }}
 

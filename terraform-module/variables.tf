@@ -134,7 +134,7 @@ variable "proxy_settings" {
     error_message = "Either specify proxy_url OR host/port/scheme, but not both. If both URL and individual properties are set, an error will be thrown by the agent."
   }
   validation {
-    condition = var.proxy_settings == null || var.proxy_settings.url == "" || can(regex("^https?://[a-zA-Z0-9.-]+:[0-9]+$", var.proxy_settings.url))
+    condition     = var.proxy_settings == null || var.proxy_settings.url == "" || can(regex("^https?://[a-zA-Z0-9.-]+:[0-9]+$", var.proxy_settings.url))
     error_message = "Proxy URL must be in format scheme://host:port (e.g., http://proxy.company.com:8080)."
   }
   validation {
@@ -146,7 +146,7 @@ variable "proxy_settings" {
     error_message = "Proxy host must be a valid hostname/IP, port must be between 1-65535, and scheme must be http or https."
   }
   validation {
-    condition = var.proxy_settings == null || var.proxy_settings.auth_type == "" || can(regex("^(NTLM|Digest|Basic)$", var.proxy_settings.auth_type))
+    condition     = var.proxy_settings == null || var.proxy_settings.auth_type == "" || can(regex("^(NTLM|Digest|Basic)$", var.proxy_settings.auth_type))
     error_message = "Proxy auth_type must be one of: NTLM, Digest, Basic."
   }
   sensitive = true
