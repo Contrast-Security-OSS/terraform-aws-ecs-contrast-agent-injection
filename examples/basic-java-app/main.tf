@@ -330,19 +330,10 @@ resource "aws_ecs_task_definition" "app" {
           },
           {
             name  = "JAVA_TOOL_OPTIONS"
-            value = var.contrast_enabled ? "-javaagent:${module.contrast_agent_injection.agent_path}" : ""
+            value = var.contrast_enabled ? "${module.contrast_agent_injection.java_tool_options}" : ""
           }
         ]
       )
-
-      # Health check
-      # healthCheck = {
-      #   command     = ["CMD-SHELL", "curl -f http://localhost:${var.app_port}/WebGoat || exit 1"]
-      #   interval    = 30
-      #   timeout     = 5
-      #   retries     = 3
-      #   startPeriod = 60
-      # }
 
       # Logging
       logConfiguration = {
