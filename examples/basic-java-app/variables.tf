@@ -176,6 +176,12 @@ variable "application_metadata" {
   default     = ""
 }
 
+variable "application_session_metadata" {
+  description = "Provide metadata that is used to create a new session ID in Contrast. This value should be formatted as key=value pairs (conforming to RFC 2253). Mutually exclusive with application_session_id"
+  type        = string
+  default     = ""
+}
+
 variable "server_tags" {
   description = "Apply a list of labels to the server. Labels must be formatted as a comma-delimited list. Example: label1, label2, label3"
   type        = string

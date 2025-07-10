@@ -276,11 +276,12 @@ module "contrast_agent_injection" {
   enable_stdout_logging  = true
 
   # Additional application configuration
-  application_group    = var.application_group
-  application_code     = var.application_code
-  application_version  = var.application_version
-  application_tags     = var.application_tags
-  application_metadata = var.application_metadata
+  application_group            = var.application_group
+  application_code             = var.application_code
+  application_version          = var.application_version
+  application_tags             = var.application_tags
+  application_metadata         = var.application_metadata
+  application_session_metadata = var.application_session_metadata
 
   # Server configuration
   server_tags = var.server_tags
