@@ -50,16 +50,15 @@ The tests are organized into several files, each focusing on specific aspects of
 
 ### Running All Tests
 
-Use the provided test runner script:
+Run all tests using Terraform's native test command:
 
 ```bash
-./run_tests.sh
+terraform test
 ```
 
-This script will:
-- Initialize Terraform if needed
-- Run all test files sequentially
-- Provide colored output and summary
+This will:
+- Run all test files in the `tests/` directory
+- Display test results with pass/fail status
 - Exit with appropriate status codes
 
 ### Running Individual Tests
@@ -190,13 +189,13 @@ jobs:
       - name: Run Tests
         run: |
           cd terraform-module
-          ./run_tests.sh
+          terraform test
 ```
 
 ### Test Results
 
-The test runner provides:
-- Colored console output
+Terraform test provides:
+- Console output with test results
 - Individual test pass/fail status
 - Overall summary with counts
 - Exit codes for CI/CD integration
