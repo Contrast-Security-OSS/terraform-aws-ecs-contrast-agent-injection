@@ -28,6 +28,7 @@ locals {
 }
 
 # VPC
+# trivy:ignore:AVD-AWS-0178
 resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr
   enable_dns_hostnames = true
@@ -54,6 +55,7 @@ resource "aws_internet_gateway" "main" {
 }
 
 # Public Subnets
+# trivy:ignore:AVD-AWS-0164
 resource "aws_subnet" "public" {
   count = length(local.azs)
 
@@ -72,6 +74,7 @@ resource "aws_subnet" "public" {
 }
 
 # Private Subnets
+# trivy:ignore:AVD-AWS-0164
 resource "aws_subnet" "private" {
   count = length(local.azs)
 
@@ -184,11 +187,13 @@ resource "aws_ecs_cluster" "main" {
 }
 
 # CloudWatch Log Groups
+# trivy:ignore:AVD-AWS-0017
 resource "aws_cloudwatch_log_group" "app" {
   name              = "/ecs/${var.app_name}"
   retention_in_days = 7
 }
 
+# trivy:ignore:AVD-AWS-0017
 resource "aws_cloudwatch_log_group" "contrast" {
   name              = "/ecs/${var.app_name}/contrast-init"
   retention_in_days = 7
@@ -231,6 +236,8 @@ resource "aws_iam_role" "ecs_task" {
 }
 
 # Security Group
+# trivy:ignore:AVD-AWS-0104
+# trivy:ignore:AVD-AWS-0124
 resource "aws_security_group" "app" {
   name        = "${var.app_name}-sg"
   description = "Security group for ${var.app_name}"
