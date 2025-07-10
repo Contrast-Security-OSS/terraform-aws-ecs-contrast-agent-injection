@@ -86,16 +86,16 @@ Designed for composition with existing ECS task definitions rather than wrapping
 │  • Integrates with load balancer                                                │
 │  • Monitors container health                                                    │
 └─────────────────────────────────────────────────────────────────────────────────┘
-         │                                          │                    
-         ▼                                          ▼                    
-┌─────────────────┐                      ┌─────────────────────┐          
-│  CloudWatch     │                      │  Contrast TeamServer│          
-│  Logs           │                      │                     │          
-│                 │                      │ • Receives telemetry│          
-│ • Init logs     │                      │ • Security analysis │          
-│ • App logs      │                      │ • Vulnerability data│          
-│ • Agent logs    │                      │ • Attack detection  │          
-└─────────────────┘                      └─────────────────────┘          
+         │                                          │
+         ▼                                          ▼
+┌─────────────────┐                      ┌─────────────────────┐
+│  CloudWatch     │                      │  Contrast TeamServer│
+│  Logs           │                      │                     │
+│                 │                      │ • Receives telemetry│
+│ • Init logs     │                      │ • Security analysis │
+│ • App logs      │                      │ • Vulnerability data│
+│ • Agent logs    │                      │ • Attack detection  │
+└─────────────────┘                      └─────────────────────┘
 ```
 
 ## Component Architecture
@@ -412,7 +412,7 @@ fi
 proxy_settings = {
   # Option 1: URL-based (simple)
   url = "https://proxy.company.com:8080"
-  
+
   # Option 2: Component-based (flexible)
   host      = "proxy.company.com"
   port      = 8080

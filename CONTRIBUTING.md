@@ -17,8 +17,8 @@ Thank you for your interest in contributing to this Terraform module! We welcome
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/Contrast-Security-OSS/terraform-contrast-ecs-agent-injection.git
-   cd terraform-contrast-ecs-agent-injection
+   git clone https://github.com/Contrast-Security-OSS/terraform-aws-ecs-contrast-agent-injection.git
+   cd terraform-aws-ecs-contrast-agent-injection
    ```
 
 2. Install development tools:
@@ -174,8 +174,8 @@ Releases follow [Semantic Versioning](https://semver.org/):
 
 ## Getting Help
 
-- Check existing [Issues](https://github.com/Contrast-Security-OSS/terraform-contrast-ecs-agent-injection/issues)
-- Review [Discussions](https://github.com/Contrast-Security-OSS/terraform-contrast-ecs-agent-injection/discussions)
+- Check existing [Issues](https://github.com/Contrast-Security-OSS/terraform-aws-ecs-contrast-agent-injection/issues)
+- Review [Discussions](https://github.com/Contrast-Security-OSS/terraform-aws-ecs-contrast-agent-injection/discussions)
 - Ask questions in issues with the `question` label
 
 ## Code of Conduct

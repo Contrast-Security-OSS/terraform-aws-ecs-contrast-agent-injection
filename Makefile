@@ -59,7 +59,7 @@ clean:
 	find . -type f -name "*.log" -exec rm -f {} +
 
 # Basic validation
-validate: 
+validate:
 	cd terraform-module && terraform init && terraform validate
 	cd examples/basic-java-app && terraform init && terraform validate
 	@echo "Running Terraform fmt check..."

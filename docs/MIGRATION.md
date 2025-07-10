@@ -58,8 +58,8 @@ java -jar app.jar
 #### 2.1 Deploy Terraform Module
 ```hcl
 module "contrast_agent_injection" {
-  source = "git::https://github.com/Contrast-Security-Inc/terraform-aws-ecs-contrast-agent-injection.git?ref=v1.0.0"
-  
+  source = "git::https://github.com/Contrast-Security-OSS/terraform-aws-ecs-contrast-agent-injection.git?ref=v1.0.0"
+
   enabled              = false  # Start disabled
   application_name     = "my-app"
   contrast_api_key     = var.contrast_api_key
@@ -79,13 +79,13 @@ resource "aws_ecs_task_definition" "app" {
       name = module.contrast_agent_injection.volume_config.name
     }
   }
-  
+
   container_definitions = jsonencode(concat(
     [{
       name = "app"
       # Remove embedded agent from image
       image = "app:no-agent"
-      
+
       # Add agent injection configurations
       dependsOn   = module.contrast_agent_injection.container_dependencies
       mountPoints = module.contrast_agent_injection.app_mount_points
@@ -127,7 +127,7 @@ resource "aws_ecs_service" "app" {
       enable   = true
       rollback = true
     }
-    
+
     maximum_percent         = 110  # Only 10% extra during deployment
     minimum_healthy_percent = 90
   }

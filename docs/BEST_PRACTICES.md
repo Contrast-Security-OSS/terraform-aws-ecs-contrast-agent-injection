@@ -163,7 +163,7 @@ tags = {
 
 **Recommended Progression:**
 1. Development (1 week)
-2. QA (1 week)  
+2. QA (1 week)
 3. Staging (2 weeks)
 4. Production Canary 10% (1 week)
 5. Production 100% (1 week)
