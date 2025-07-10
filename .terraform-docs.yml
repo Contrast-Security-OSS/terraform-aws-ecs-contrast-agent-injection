@@ -1,6 +1,6 @@
 formatter: "markdown table"
 
-version: "~> 1.0"
+version: ">= 0.16"
 
 header-from: main.tf
 footer-from: ""
@@ -9,37 +9,12 @@ recursive:
   enabled: false
 
 sections:
-  hide:
-    - header
-    - footer
-    - providers
-    - modules
-    - resources
-    - data-sources
   show:
     - requirements
     - inputs
     - outputs
 
 content: |-
-  ## Usage
-
-  ```hcl
-  module "contrast_agent_injection" {
-    source  = "Contrast-Security-OSS/ecs-contrast-agent-injection/aws"
-    version = "~> 1.0"
-
-    enabled              = true
-    application_name     = "my-java-service"
-    contrast_api_key     = var.contrast_api_key
-    contrast_service_key = var.contrast_service_key
-    contrast_user_name   = var.contrast_user_name
-    environment          = "PRODUCTION"
-  }
-  ```
-
-  For complete examples, see the [GitHub repository](https://github.com/Contrast-Security-OSS/terraform-contrast-ecs-agent-injection/tree/main/examples).
-
   {{ .Requirements }}
 
   {{ .Inputs }}
