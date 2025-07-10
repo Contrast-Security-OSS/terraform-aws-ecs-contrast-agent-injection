@@ -18,20 +18,30 @@ variable "contrast_api_url" {
 }
 
 variable "contrast_api_key" {
-  description = "API key for Contrast agent authentication"
+  description = "API key for Contrast agent authentication (use with service_key and user_name)"
   type        = string
+  default     = ""
   sensitive   = true
 }
 
 variable "contrast_service_key" {
-  description = "Service key for the specific application profile"
+  description = "Service key for the specific application profile (use with api_key and user_name)"
   type        = string
+  default     = ""
   sensitive   = true
 }
 
 variable "contrast_user_name" {
-  description = "Agent user name for authentication"
+  description = "Agent user name for authentication (use with api_key and service_key)"
   type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "contrast_api_token" {
+  description = "API token for Contrast agent authentication (alternative to api_key/service_key/user_name)"
+  type        = string
+  default     = ""
   sensitive   = true
 }
 

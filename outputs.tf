@@ -77,3 +77,9 @@ output "agent_activation_value" {
   value       = var.enabled ? local.current_agent_config.activation_value : null
   sensitive   = true
 }
+
+output "authentication_method" {
+  description = "The authentication method being used (token or three-key)"
+  value       = var.enabled ? (local.using_token_auth ? "token" : "three-key") : null
+  sensitive   = true
+}

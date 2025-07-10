@@ -1,5 +1,30 @@
 # Main Terraform module for ECS Contrast Agent Injection - Multi-Agent Support
 
+# Validation checks
+locals {
+  # Authentication method validation
+  authentication_method_validation = (
+    # Either use token authentication
+    (var.contrast_api_token != "" && var.contrast_api_key == "" && var.contrast_service_key == "" && var.contrast_user_name == "") ||
+    # Or use three-key authentication
+    (var.contrast_api_token == "" && var.contrast_api_key != "" && var.contrast_service_key != "" && var.contrast_user_name != "") ||
+    # Or no authentication (when disabled or all empty)
+    (var.contrast_api_token == "" && var.contrast_api_key == "" && var.contrast_service_key == "" && var.contrast_user_name == "" && !var.enabled)
+  )
+}
+
+# Error if validation fails
+resource "terraform_data" "authentication_validation" {
+  count = local.authentication_method_validation ? 0 : 1
+
+  lifecycle {
+    precondition {
+      condition     = local.authentication_method_validation
+      error_message = "You must use either contrast_api_token OR all three of (contrast_api_key, contrast_service_key, contrast_user_name), but not both authentication methods. When enabled=true, you must provide authentication credentials."
+    }
+  }
+}
+
 locals {
   # Agent-specific configuration
   agent_configs = {
@@ -41,6 +66,9 @@ locals {
   # Generate a unique server name if not provided
   contrast_server_name = var.server_name != "" ? var.server_name : "${var.application_name}-${data.aws_region.current.id}"
 
+  # Determine authentication method
+  using_token_auth = var.contrast_api_token != ""
+
   # Build the init container definition with agent-specific image
   init_container = var.enabled ? [{
     name      = "contrast-init"
@@ -81,7 +109,7 @@ locals {
   }] : []
 
   # Base environment variables for the Contrast agent (common to all agent types)
-  base_contrast_env_vars = var.enabled ? [
+  base_contrast_env_vars = var.enabled ? concat([
     {
       name  = "CONTRAST_ENABLED"
       value = "true"
@@ -89,18 +117,6 @@ locals {
     {
       name  = "CONTRAST__API__URL"
       value = var.contrast_api_url
-    },
-    {
-      name  = "CONTRAST__API__API_KEY"
-      value = var.contrast_api_key
-    },
-    {
-      name  = "CONTRAST__API__SERVICE_KEY"
-      value = var.contrast_service_key
-    },
-    {
-      name  = "CONTRAST__API__USER_NAME"
-      value = var.contrast_user_name
     },
     {
       name  = "CONTRAST__APPLICATION__NAME"
@@ -138,8 +154,28 @@ locals {
     {
       name  = local.current_agent_config.activation_env
       value = local.current_agent_config.activation_value
-    }
-    ] : [
+    }],
+    # Add authentication-specific environment variables
+    local.using_token_auth ? [
+      {
+        name  = "CONTRAST__API__TOKEN"
+        value = var.contrast_api_token
+      }
+      ] : [
+      {
+        name  = "CONTRAST__API__API_KEY"
+        value = var.contrast_api_key
+      },
+      {
+        name  = "CONTRAST__API__SERVICE_KEY"
+        value = var.contrast_service_key
+      },
+      {
+        name  = "CONTRAST__API__USER_NAME"
+        value = var.contrast_user_name
+      }
+    ]
+    ) : [
     {
       name  = "CONTRAST_ENABLED"
       value = "false"

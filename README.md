@@ -21,7 +21,7 @@ This module implements a production-ready agent injection pattern for deploying 
 
 ## Usage
 
-### Basic Example
+### Basic Example (Three-Key Authentication)
 
 ```hcl
 module "contrast_agent_injection" {
@@ -38,6 +38,38 @@ module "contrast_agent_injection" {
   log_group_name       = "/ecs/my-app"
 }
 ```
+
+### Basic Example (Token Authentication)
+
+```hcl
+module "contrast_agent_injection" {
+  source  = "Contrast-Security-OSS/terraform-aws-ecs-contrast-agent-injection/aws"
+  version = ">= 1.0"
+
+  enabled              = true
+  agent_type           = "java"
+  application_name     = "my-java-service"
+  contrast_api_token   = var.contrast_api_token
+  environment          = "production"
+  log_group_name       = "/ecs/my-app"
+}
+```
+
+## Authentication Methods
+
+This module supports two authentication methods:
+
+### Three-Key Authentication
+Uses separate API key, service key, and user name:
+- `contrast_api_key` - API key for Contrast agent authentication
+- `contrast_service_key` - Service key for the specific application profile  
+- `contrast_user_name` - Agent user name for authentication
+
+### Token Authentication
+Uses a single API token:
+- `contrast_api_token` - API token for Contrast agent authentication
+
+**Note:** You must use either token authentication OR three-key authentication, but not both.
 
 ### Complete Example with Task Definition
 
@@ -182,11 +214,12 @@ This project is licensed under the Apache 2.0 License - see the [LICENSE](./LICE
 | <a name="input_agent_type"></a> [agent\_type](#input\_agent\_type) | Type of Contrast agent to deploy (java) | `string` | `"java"` | no |
 | <a name="input_application_name"></a> [application\_name](#input\_application\_name) | Name of the application as it will appear in Contrast | `string` | n/a | yes |
 | <a name="input_contrast_agent_version"></a> [contrast\_agent\_version](#input\_contrast\_agent\_version) | Specific version of the Contrast agent to use | `string` | `"latest"` | no |
-| <a name="input_contrast_api_key"></a> [contrast\_api\_key](#input\_contrast\_api\_key) | API key for Contrast agent authentication | `string` | n/a | yes |
+| <a name="input_contrast_api_key"></a> [contrast\_api\_key](#input\_contrast\_api\_key) | API key for Contrast agent authentication (use with service\_key and user\_name) | `string` | `""` | no |
+| <a name="input_contrast_api_token"></a> [contrast\_api\_token](#input\_contrast\_api\_token) | API token for Contrast agent authentication (alternative to api\_key/service\_key/user\_name) | `string` | `""` | no |
 | <a name="input_contrast_api_url"></a> [contrast\_api\_url](#input\_contrast\_api\_url) | URL of the Contrast TeamServer instance | `string` | `"https://app.contrastsecurity.com/Contrast"` | no |
 | <a name="input_contrast_log_level"></a> [contrast\_log\_level](#input\_contrast\_log\_level) | Logging verbosity of the Contrast agent | `string` | `"WARN"` | no |
-| <a name="input_contrast_service_key"></a> [contrast\_service\_key](#input\_contrast\_service\_key) | Service key for the specific application profile | `string` | n/a | yes |
-| <a name="input_contrast_user_name"></a> [contrast\_user\_name](#input\_contrast\_user\_name) | Agent user name for authentication | `string` | n/a | yes |
+| <a name="input_contrast_service_key"></a> [contrast\_service\_key](#input\_contrast\_service\_key) | Service key for the specific application profile (use with api\_key and user\_name) | `string` | `""` | no |
+| <a name="input_contrast_user_name"></a> [contrast\_user\_name](#input\_contrast\_user\_name) | Agent user name for authentication (use with api\_key and service\_key) | `string` | `""` | no |
 | <a name="input_enable_stdout_logging"></a> [enable\_stdout\_logging](#input\_enable\_stdout\_logging) | Enable agent logging to stdout for container logs | `bool` | `true` | no |
 | <a name="input_enabled"></a> [enabled](#input\_enabled) | Enable or disable the Contrast agent injection | `bool` | `false` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment name (e.g., PRODUCTION, QA, DEVELOPMENT) | `string` | n/a | yes |
@@ -206,6 +239,7 @@ This project is licensed under the Apache 2.0 License - see the [LICENSE](./LICE
 | <a name="output_agent_path"></a> [agent\_path](#output\_agent\_path) | Path where the Contrast agent is mounted in the application container |
 | <a name="output_agent_type"></a> [agent\_type](#output\_agent\_type) | The type of Contrast agent being used |
 | <a name="output_app_mount_points"></a> [app\_mount\_points](#output\_app\_mount\_points) | Mount points for the application container |
+| <a name="output_authentication_method"></a> [authentication\_method](#output\_authentication\_method) | The authentication method being used (token or three-key) |
 | <a name="output_container_dependencies"></a> [container\_dependencies](#output\_container\_dependencies) | Container dependencies for the application container |
 | <a name="output_contrast_server_name"></a> [contrast\_server\_name](#output\_contrast\_server\_name) | The computed Contrast server name |
 | <a name="output_environment_variables"></a> [environment\_variables](#output\_environment\_variables) | Environment variables for the application container |
