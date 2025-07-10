@@ -15,18 +15,18 @@ echo "Environment: ${APP_ENV}"
 # =================================================================
 if [ "$CONTRAST_ENABLED" = "true" ]; then
     echo "Contrast agent is enabled. Injecting agent into JAVA_TOOL_OPTIONS."
-    
+
     # Define the path to the agent JAR
     CONTRAST_AGENT_PATH="/opt/contrast/java/contrast-agent.jar"
-    
+
     # Check if the agent file exists
     if [ -f "$CONTRAST_AGENT_PATH" ]; then
         echo "Contrast agent found at: $CONTRAST_AGENT_PATH"
-        
+
         # Prepend the Contrast javaagent to any existing JAVA_TOOL_OPTIONS
         # This allows multiple agents (e.g., DataDog, Contrast) to coexist.
         export JAVA_TOOL_OPTIONS="-javaagent:${CONTRAST_AGENT_PATH} ${JAVA_TOOL_OPTIONS}"
-        
+
         echo "Updated JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS}"
     else
         echo "WARNING: Contrast agent file not found at $CONTRAST_AGENT_PATH"

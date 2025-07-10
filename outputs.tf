@@ -36,11 +36,6 @@ output "agent_path" {
   value       = var.enabled ? "${local.app_mount_path}/${local.current_agent_config.agent_filename}" : null
 }
 
-output "java_tool_options" {
-  description = "Agent activation environment variable value (deprecated - use agent_activation_value instead)"
-  value       = var.enabled && var.agent_type == "java" ? local.current_agent_config.activation_value : null
-}
-
 output "init_container_name" {
   description = "Name of the init container"
   value       = var.enabled ? "contrast-init" : null

@@ -201,11 +201,6 @@ run "integration_test_outputs_validation" {
   }
 
   assert {
-    condition     = output.java_tool_options == "-javaagent:/opt/contrast/java/contrast-agent.jar"
-    error_message = "Java tool options should be correct"
-  }
-
-  assert {
     condition     = output.init_container_name == "contrast-init"
     error_message = "Init container name should be correct"
   }

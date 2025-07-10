@@ -48,11 +48,6 @@ run "agent_disabled_outputs" {
   }
 
   assert {
-    condition     = output.java_tool_options == null
-    error_message = "Java tool options should be null when disabled"
-  }
-
-  assert {
     condition     = output.init_container_name == null
     error_message = "Init container name should be null when disabled"
   }

@@ -267,13 +267,6 @@ module "contrast_agent_injection" {
   log_group_name         = aws_cloudwatch_log_group.contrast.name
   contrast_agent_version = var.contrast_agent_version
   enable_stdout_logging  = true
-
-  # Add custom tags
-  tags = {
-    Team        = var.team
-    Application = var.app_name
-    Environment = var.environment
-  }
 }
 
 # ECS Task Definition
@@ -331,7 +324,7 @@ resource "aws_ecs_task_definition" "app" {
           },
           {
             name  = "JAVA_TOOL_OPTIONS"
-            value = var.contrast_enabled ? "${module.contrast_agent_injection.java_tool_options}" : ""
+            value = var.contrast_enabled ? "-javaagent:${module.contrast_agent_injection.agent_path}" : ""
           }
         ]
       )

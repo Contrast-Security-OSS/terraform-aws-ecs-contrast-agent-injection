@@ -60,12 +60,6 @@ variable "contrast_log_level" {
   }
 }
 
-variable "init_container_image" {
-  description = "Docker image for the Contrast init container (deprecated - image is now determined by agent_type)"
-  type        = string
-  default     = ""
-}
-
 variable "init_container_cpu" {
   description = "CPU units for the init container"
   type        = number
@@ -150,12 +144,6 @@ variable "proxy_settings" {
     error_message = "Proxy auth_type must be one of: NTLM, Digest, Basic."
   }
   sensitive = true
-}
-
-variable "tags" {
-  description = "Tags to apply to the Contrast configuration"
-  type        = map(string)
-  default     = {}
 }
 
 variable "agent_type" {

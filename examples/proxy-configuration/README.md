@@ -22,7 +22,7 @@ The proxy configuration allows the Contrast agent to communicate through corpora
 
 **Option 1: Individual Settings**
 - **host**: Proxy hostname or IP address
-- **port**: Proxy port number  
+- **port**: Proxy port number
 - **scheme**: Proxy protocol (http or https)
 - **username**: Proxy authentication username (optional)
 - **password**: Proxy authentication password (optional)

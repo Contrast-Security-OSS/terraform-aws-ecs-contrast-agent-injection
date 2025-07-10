@@ -1,6 +1,10 @@
 # Example with Proxy Configuration
 # This example shows how to configure the Contrast agent with a corporate proxy
 
+terraform {
+  required_version = ">= 1.0"
+}
+
 module "contrast_agent_injection_with_proxy" {
   source = "../.."
 
@@ -40,13 +44,6 @@ module "contrast_agent_injection_with_proxy" {
     "CONTRAST__ASSESS__SAMPLING__BASELINE" = "10"
     "CONTRAST__PROTECT__RULES__DISABLED"   = "sqli,xss"
     "CONTRAST__APPLICATION__TAGS"          = "production,critical"
-  }
-
-  tags = {
-    Environment = "production"
-    Application = "my-java-service"
-    Team        = "backend"
-    CostCenter  = "engineering"
   }
 }
 
@@ -93,6 +90,3 @@ output "proxy_configured" {
   sensitive = true
 }
 
-output "java_tool_options" {
-  value = module.contrast_agent_injection_with_proxy.java_tool_options
-}

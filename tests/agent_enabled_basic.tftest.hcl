@@ -150,11 +150,6 @@ run "agent_enabled_outputs" {
   }
 
   assert {
-    condition     = output.java_tool_options == "-javaagent:/opt/contrast/java/contrast-agent.jar"
-    error_message = "Java tool options should be correct when enabled"
-  }
-
-  assert {
     condition     = output.init_container_name == "contrast-init"
     error_message = "Init container name should be correct when enabled"
   }
