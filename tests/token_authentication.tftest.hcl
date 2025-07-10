@@ -4,11 +4,11 @@ run "token_authentication_basic" {
   command = plan
 
   variables {
-    enabled                = true
-    application_name       = "token-auth-test-app"
-    contrast_api_token     = "test-token-123"
-    environment            = "DEVELOPMENT"
-    log_group_name         = "test-log-group"
+    enabled            = true
+    application_name   = "token-auth-test-app"
+    contrast_api_token = "test-token-123"
+    environment        = "DEVELOPMENT"
+    log_group_name     = "test-log-group"
   }
 
   assert {
@@ -114,11 +114,11 @@ run "token_authentication_with_proxy" {
   command = plan
 
   variables {
-    enabled                = true
-    application_name       = "token-proxy-test-app"
-    contrast_api_token     = "test-token-with-proxy"
-    environment            = "PRODUCTION"
-    log_group_name         = "test-log-group"
+    enabled            = true
+    application_name   = "token-proxy-test-app"
+    contrast_api_token = "test-token-with-proxy"
+    environment        = "PRODUCTION"
+    log_group_name     = "test-log-group"
     proxy_settings = {
       host      = "proxy.example.com"
       port      = 8080
@@ -155,11 +155,11 @@ run "token_authentication_disabled" {
   command = plan
 
   variables {
-    enabled                = false
-    application_name       = "disabled-token-test-app"
-    contrast_api_token     = "test-token-disabled"
-    environment            = "DEVELOPMENT"
-    log_group_name         = "test-log-group"
+    enabled            = false
+    application_name   = "disabled-token-test-app"
+    contrast_api_token = "test-token-disabled"
+    environment        = "DEVELOPMENT"
+    log_group_name     = "test-log-group"
   }
 
   assert {

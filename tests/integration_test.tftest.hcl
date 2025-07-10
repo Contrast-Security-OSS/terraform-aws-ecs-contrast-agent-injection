@@ -27,16 +27,16 @@ variables {
     password  = "secure-proxy-password"
     auth_type = "Basic"
   }
-  
+
   # Add additional configuration options for comprehensive testing
-  application_group        = "Integration Test Services"
-  application_code         = "integration-001"
-  application_version      = "3.14.1"
-  application_tags         = "java,integration,production"
-  application_metadata     = "business-unit=qa,test-suite=integration,environment=production"
-  server_tags              = "integration,production,monitored"
-  assess_tags              = "integration-testing,automated"
-  inventory_tags           = "integration-dependencies,verified"
+  application_group    = "Integration Test Services"
+  application_code     = "integration-001"
+  application_version  = "3.14.1"
+  application_tags     = "java,integration,production"
+  application_metadata = "business-unit=qa,test-suite=integration,environment=production"
+  server_tags          = "integration,production,monitored"
+  assess_tags          = "integration-testing,automated"
+  inventory_tags       = "integration-dependencies,verified"
 }
 
 run "integration_test_complete_setup" {

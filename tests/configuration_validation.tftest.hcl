@@ -4,15 +4,15 @@ run "application_session_validation_both_set_in_variables" {
   command = plan
 
   variables {
-    enabled                        = true
-    application_name               = "session-var-validation-app"
-    contrast_api_key               = "test-api-key"
-    contrast_service_key           = "test-service-key"
-    contrast_user_name             = "test-user"
-    environment                    = "DEVELOPMENT"
-    log_group_name                 = "test-log-group"
-    application_session_id         = "test-session-123"
-    application_session_metadata   = "buildNumber=456"
+    enabled                      = true
+    application_name             = "session-var-validation-app"
+    contrast_api_key             = "test-api-key"
+    contrast_service_key         = "test-service-key"
+    contrast_user_name           = "test-user"
+    environment                  = "DEVELOPMENT"
+    log_group_name               = "test-log-group"
+    application_session_id       = "test-session-123"
+    application_session_metadata = "buildNumber=456"
   }
 
   # This should fail due to lifecycle precondition validation
@@ -25,13 +25,13 @@ run "environment_variable_validation_case_insensitive" {
   command = plan
 
   variables {
-    enabled                        = true
-    application_name               = "env-validation-app"
-    contrast_api_key               = "test-api-key"
-    contrast_service_key           = "test-service-key"
-    contrast_user_name             = "test-user"
-    environment                    = "production"  # lowercase
-    log_group_name                 = "test-log-group"
+    enabled              = true
+    application_name     = "env-validation-app"
+    contrast_api_key     = "test-api-key"
+    contrast_service_key = "test-service-key"
+    contrast_user_name   = "test-user"
+    environment          = "production" # lowercase
+    log_group_name       = "test-log-group"
   }
 
   assert {
@@ -47,14 +47,14 @@ run "log_level_validation_case_insensitive" {
   command = plan
 
   variables {
-    enabled                        = true
-    application_name               = "log-level-validation-app"
-    contrast_api_key               = "test-api-key"
-    contrast_service_key           = "test-service-key"
-    contrast_user_name             = "test-user"
-    environment                    = "DEVELOPMENT"
-    log_group_name                 = "test-log-group"
-    contrast_log_level             = "debug"  # lowercase
+    enabled              = true
+    application_name     = "log-level-validation-app"
+    contrast_api_key     = "test-api-key"
+    contrast_service_key = "test-service-key"
+    contrast_user_name   = "test-user"
+    environment          = "DEVELOPMENT"
+    log_group_name       = "test-log-group"
+    contrast_log_level   = "debug" # lowercase
   }
 
   assert {
@@ -70,14 +70,14 @@ run "agent_version_validation_semantic_version" {
   command = plan
 
   variables {
-    enabled                        = true
-    application_name               = "agent-version-validation-app"
-    contrast_api_key               = "test-api-key"
-    contrast_service_key           = "test-service-key"
-    contrast_user_name             = "test-user"
-    environment                    = "DEVELOPMENT"
-    log_group_name                 = "test-log-group"
-    contrast_agent_version         = "4.2.15"
+    enabled                = true
+    application_name       = "agent-version-validation-app"
+    contrast_api_key       = "test-api-key"
+    contrast_service_key   = "test-service-key"
+    contrast_user_name     = "test-user"
+    environment            = "DEVELOPMENT"
+    log_group_name         = "test-log-group"
+    contrast_agent_version = "4.2.15"
   }
 
   assert {
@@ -90,15 +90,15 @@ run "init_container_resource_limits_validation" {
   command = plan
 
   variables {
-    enabled                        = true
-    application_name               = "resource-limits-validation-app"
-    contrast_api_key               = "test-api-key"
-    contrast_service_key           = "test-service-key"
-    contrast_user_name             = "test-user"
-    environment                    = "DEVELOPMENT"
-    log_group_name                 = "test-log-group"
-    init_container_cpu             = 4
-    init_container_memory          = 64
+    enabled               = true
+    application_name      = "resource-limits-validation-app"
+    contrast_api_key      = "test-api-key"
+    contrast_service_key  = "test-service-key"
+    contrast_user_name    = "test-user"
+    environment           = "DEVELOPMENT"
+    log_group_name        = "test-log-group"
+    init_container_cpu    = 4
+    init_container_memory = 64
   }
 
   assert {
@@ -116,27 +116,27 @@ run "empty_string_handling_validation" {
   command = plan
 
   variables {
-    enabled                        = true
-    application_name               = "empty-string-validation-app"
-    contrast_api_key               = "test-api-key"
-    contrast_service_key           = "test-service-key"
-    contrast_user_name             = "test-user"
-    environment                    = "DEVELOPMENT"
-    log_group_name                 = "test-log-group"
-    server_name                    = ""
-    application_group              = ""
-    application_code               = ""
-    application_version            = ""
-    application_tags               = ""
-    application_metadata           = ""
-    server_tags                    = ""
-    assess_tags                    = ""
-    inventory_tags                 = ""
+    enabled              = true
+    application_name     = "empty-string-validation-app"
+    contrast_api_key     = "test-api-key"
+    contrast_service_key = "test-service-key"
+    contrast_user_name   = "test-user"
+    environment          = "DEVELOPMENT"
+    log_group_name       = "test-log-group"
+    server_name          = ""
+    application_group    = ""
+    application_code     = ""
+    application_version  = ""
+    application_tags     = ""
+    application_metadata = ""
+    server_tags          = ""
+    assess_tags          = ""
+    inventory_tags       = ""
   }
 
   # Test that empty strings are handled correctly and don't create environment variables
   assert {
-    condition     = length([
+    condition = length([
       for env in local.contrast_env_vars : env
       if env.name == "CONTRAST__APPLICATION__GROUP"
     ]) == 0
@@ -144,7 +144,7 @@ run "empty_string_handling_validation" {
   }
 
   assert {
-    condition     = length([
+    condition = length([
       for env in local.contrast_env_vars : env
       if env.name == "CONTRAST__APPLICATION__CODE"
     ]) == 0
@@ -152,7 +152,7 @@ run "empty_string_handling_validation" {
   }
 
   assert {
-    condition     = length([
+    condition = length([
       for env in local.contrast_env_vars : env
       if env.name == "CONTRAST__APPLICATION__VERSION"
     ]) == 0
@@ -160,7 +160,7 @@ run "empty_string_handling_validation" {
   }
 
   assert {
-    condition     = length([
+    condition = length([
       for env in local.contrast_env_vars : env
       if env.name == "CONTRAST__APPLICATION__TAGS"
     ]) == 0
@@ -168,7 +168,7 @@ run "empty_string_handling_validation" {
   }
 
   assert {
-    condition     = length([
+    condition = length([
       for env in local.contrast_env_vars : env
       if env.name == "CONTRAST__APPLICATION__METADATA"
     ]) == 0
@@ -176,7 +176,7 @@ run "empty_string_handling_validation" {
   }
 
   assert {
-    condition     = length([
+    condition = length([
       for env in local.contrast_env_vars : env
       if env.name == "CONTRAST__SERVER__TAGS"
     ]) == 0
@@ -184,7 +184,7 @@ run "empty_string_handling_validation" {
   }
 
   assert {
-    condition     = length([
+    condition = length([
       for env in local.contrast_env_vars : env
       if env.name == "CONTRAST__ASSESS__TAGS"
     ]) == 0
@@ -192,7 +192,7 @@ run "empty_string_handling_validation" {
   }
 
   assert {
-    condition     = length([
+    condition = length([
       for env in local.contrast_env_vars : env
       if env.name == "CONTRAST__INVENTORY__TAGS"
     ]) == 0
@@ -204,14 +204,14 @@ run "server_name_auto_generation_validation" {
   command = plan
 
   variables {
-    enabled                        = true
-    application_name               = "server-name-auto-gen-app"
-    contrast_api_key               = "test-api-key"
-    contrast_service_key           = "test-service-key"
-    contrast_user_name             = "test-user"
-    environment                    = "DEVELOPMENT"
-    log_group_name                 = "test-log-group"
-    server_name                    = ""
+    enabled              = true
+    application_name     = "server-name-auto-gen-app"
+    contrast_api_key     = "test-api-key"
+    contrast_service_key = "test-service-key"
+    contrast_user_name   = "test-user"
+    environment          = "DEVELOPMENT"
+    log_group_name       = "test-log-group"
+    server_name          = ""
   }
 
   assert {
@@ -229,14 +229,14 @@ run "agent_type_validation" {
   command = plan
 
   variables {
-    enabled                        = true
-    application_name               = "agent-type-validation-app"
-    contrast_api_key               = "test-api-key"
-    contrast_service_key           = "test-service-key"
-    contrast_user_name             = "test-user"
-    environment                    = "DEVELOPMENT"
-    log_group_name                 = "test-log-group"
-    agent_type                     = "java"
+    enabled              = true
+    application_name     = "agent-type-validation-app"
+    contrast_api_key     = "test-api-key"
+    contrast_service_key = "test-service-key"
+    contrast_user_name   = "test-user"
+    environment          = "DEVELOPMENT"
+    log_group_name       = "test-log-group"
+    agent_type           = "java"
   }
 
   assert {
@@ -259,17 +259,17 @@ run "additional_env_vars_validation" {
   command = plan
 
   variables {
-    enabled                        = true
-    application_name               = "additional-env-vars-validation-app"
-    contrast_api_key               = "test-api-key"
-    contrast_service_key           = "test-service-key"
-    contrast_user_name             = "test-user"
-    environment                    = "DEVELOPMENT"
-    log_group_name                 = "test-log-group"
+    enabled              = true
+    application_name     = "additional-env-vars-validation-app"
+    contrast_api_key     = "test-api-key"
+    contrast_service_key = "test-service-key"
+    contrast_user_name   = "test-user"
+    environment          = "DEVELOPMENT"
+    log_group_name       = "test-log-group"
     additional_env_vars = {
-      "CUSTOM_VAR_1"               = "value1"
-      "CUSTOM_VAR_2"               = "value2"
-      "CONTRAST__CUSTOM__SETTING"  = "custom-value"
+      "CUSTOM_VAR_1"              = "value1"
+      "CUSTOM_VAR_2"              = "value2"
+      "CONTRAST__CUSTOM__SETTING" = "custom-value"
     }
   }
 
@@ -302,14 +302,14 @@ run "boolean_variable_validation" {
   command = plan
 
   variables {
-    enabled                        = true
-    application_name               = "boolean-validation-app"
-    contrast_api_key               = "test-api-key"
-    contrast_service_key           = "test-service-key"
-    contrast_user_name             = "test-user"
-    environment                    = "DEVELOPMENT"
-    log_group_name                 = "test-log-group"
-    enable_stdout_logging          = false
+    enabled               = true
+    application_name      = "boolean-validation-app"
+    contrast_api_key      = "test-api-key"
+    contrast_service_key  = "test-service-key"
+    contrast_user_name    = "test-user"
+    environment           = "DEVELOPMENT"
+    log_group_name        = "test-log-group"
+    enable_stdout_logging = false
   }
 
   assert {

@@ -1,32 +1,32 @@
 # Test for comprehensive additional configuration options coverage
 
 variables {
-  enabled                        = true
-  application_name               = "config-test-app"
-  contrast_api_key               = "test-api-key"
-  contrast_service_key           = "test-service-key"
-  contrast_user_name             = "test-user"
-  environment                    = "DEVELOPMENT"
-  log_group_name                 = "test-log-group"
-  contrast_api_url               = "https://app.contrastsecurity.com/Contrast"
-  contrast_log_level             = "INFO"
-  enable_stdout_logging          = true
-  
+  enabled               = true
+  application_name      = "config-test-app"
+  contrast_api_key      = "test-api-key"
+  contrast_service_key  = "test-service-key"
+  contrast_user_name    = "test-user"
+  environment           = "DEVELOPMENT"
+  log_group_name        = "test-log-group"
+  contrast_api_url      = "https://app.contrastsecurity.com/Contrast"
+  contrast_log_level    = "INFO"
+  enable_stdout_logging = true
+
   # Additional application configuration variables
-  application_group              = "Backend Services"
-  application_code               = "backend-001"
-  application_version            = "2.1.0"
-  application_tags               = "java,microservice,backend"
-  application_metadata           = "business-unit=engineering,cost-center=12345,owner=backend-team"
-  application_session_id         = ""
-  application_session_metadata   = ""
-  
+  application_group            = "Backend Services"
+  application_code             = "backend-001"
+  application_version          = "2.1.0"
+  application_tags             = "java,microservice,backend"
+  application_metadata         = "business-unit=engineering,cost-center=12345,owner=backend-team"
+  application_session_id       = ""
+  application_session_metadata = ""
+
   # Server configuration
-  server_tags                    = "production,east-region,critical"
-  
+  server_tags = "production,east-region,critical"
+
   # Assessment and inventory tags
-  assess_tags                    = "security,compliance,audit"
-  inventory_tags                 = "third-party,open-source,critical"
+  assess_tags    = "security,compliance,audit"
+  inventory_tags = "third-party,open-source,critical"
 }
 
 run "application_configuration_variables" {
@@ -117,15 +117,15 @@ run "session_configuration_with_session_id" {
   command = plan
 
   variables {
-    enabled                        = true
-    application_name               = "session-id-test-app"
-    contrast_api_key               = "test-api-key"
-    contrast_service_key           = "test-service-key"
-    contrast_user_name             = "test-user"
-    environment                    = "DEVELOPMENT"
-    log_group_name                 = "test-log-group"
-    application_session_id         = "test-session-12345"
-    application_session_metadata   = ""
+    enabled                      = true
+    application_name             = "session-id-test-app"
+    contrast_api_key             = "test-api-key"
+    contrast_service_key         = "test-service-key"
+    contrast_user_name           = "test-user"
+    environment                  = "DEVELOPMENT"
+    log_group_name               = "test-log-group"
+    application_session_id       = "test-session-12345"
+    application_session_metadata = ""
   }
 
   assert {
@@ -149,15 +149,15 @@ run "session_configuration_with_session_metadata" {
   command = plan
 
   variables {
-    enabled                        = true
-    application_name               = "session-metadata-test-app"
-    contrast_api_key               = "test-api-key"
-    contrast_service_key           = "test-service-key"
-    contrast_user_name             = "test-user"
-    environment                    = "DEVELOPMENT"
-    log_group_name                 = "test-log-group"
-    application_session_id         = ""
-    application_session_metadata   = "buildNumber=123,branchName=main,commitHash=abc123"
+    enabled                      = true
+    application_name             = "session-metadata-test-app"
+    contrast_api_key             = "test-api-key"
+    contrast_service_key         = "test-service-key"
+    contrast_user_name           = "test-user"
+    environment                  = "DEVELOPMENT"
+    log_group_name               = "test-log-group"
+    application_session_id       = ""
+    application_session_metadata = "buildNumber=123,branchName=main,commitHash=abc123"
   }
 
   assert {
@@ -181,25 +181,25 @@ run "empty_optional_configuration_variables" {
   command = plan
 
   variables {
-    enabled                        = true
-    application_name               = "empty-config-test-app"
-    contrast_api_key               = "test-api-key"
-    contrast_service_key           = "test-service-key"
-    contrast_user_name             = "test-user"
-    environment                    = "DEVELOPMENT"
-    log_group_name                 = "test-log-group"
-    
+    enabled              = true
+    application_name     = "empty-config-test-app"
+    contrast_api_key     = "test-api-key"
+    contrast_service_key = "test-service-key"
+    contrast_user_name   = "test-user"
+    environment          = "DEVELOPMENT"
+    log_group_name       = "test-log-group"
+
     # Set all optional variables to empty
-    application_group              = ""
-    application_code               = ""
-    application_version            = ""
-    application_tags               = ""
-    application_metadata           = ""
-    application_session_id         = ""
-    application_session_metadata   = ""
-    server_tags                    = ""
-    assess_tags                    = ""
-    inventory_tags                 = ""
+    application_group            = ""
+    application_code             = ""
+    application_version          = ""
+    application_tags             = ""
+    application_metadata         = ""
+    application_session_id       = ""
+    application_session_metadata = ""
+    server_tags                  = ""
+    assess_tags                  = ""
+    inventory_tags               = ""
   }
 
   # Verify that empty variables don't create environment variables
@@ -328,25 +328,25 @@ run "configuration_outputs_empty_values" {
   command = plan
 
   variables {
-    enabled                        = true
-    application_name               = "empty-outputs-test-app"
-    contrast_api_key               = "test-api-key"
-    contrast_service_key           = "test-service-key"
-    contrast_user_name             = "test-user"
-    environment                    = "DEVELOPMENT"
-    log_group_name                 = "test-log-group"
-    
+    enabled              = true
+    application_name     = "empty-outputs-test-app"
+    contrast_api_key     = "test-api-key"
+    contrast_service_key = "test-service-key"
+    contrast_user_name   = "test-user"
+    environment          = "DEVELOPMENT"
+    log_group_name       = "test-log-group"
+
     # Set all optional variables to empty
-    application_group              = ""
-    application_code               = ""
-    application_version            = ""
-    application_tags               = ""
-    application_metadata           = ""
-    application_session_id         = ""
-    application_session_metadata   = ""
-    server_tags                    = ""
-    assess_tags                    = ""
-    inventory_tags                 = ""
+    application_group            = ""
+    application_code             = ""
+    application_version          = ""
+    application_tags             = ""
+    application_metadata         = ""
+    application_session_id       = ""
+    application_session_metadata = ""
+    server_tags                  = ""
+    assess_tags                  = ""
+    inventory_tags               = ""
   }
 
   # Test that outputs return null for empty values
@@ -390,23 +390,23 @@ run "complex_metadata_and_tags_formatting" {
   command = plan
 
   variables {
-    enabled                        = true
-    application_name               = "complex-metadata-test-app"
-    contrast_api_key               = "test-api-key"
-    contrast_service_key           = "test-service-key"
-    contrast_user_name             = "test-user"
-    environment                    = "PRODUCTION"
-    log_group_name                 = "test-log-group"
-    
+    enabled              = true
+    application_name     = "complex-metadata-test-app"
+    contrast_api_key     = "test-api-key"
+    contrast_service_key = "test-service-key"
+    contrast_user_name   = "test-user"
+    environment          = "PRODUCTION"
+    log_group_name       = "test-log-group"
+
     # Test complex metadata with special characters
-    application_metadata           = "business-unit=engineering,cost-center=12345,owner=backend-team,location=Baltimore,project=contrast-security"
-    application_tags               = "java,microservice,backend,security,production"
-    server_tags                    = "production,east-region,critical,monitored"
-    assess_tags                    = "security,compliance,audit,priority-high"
-    inventory_tags                 = "third-party,open-source,critical,verified"
-    
+    application_metadata = "business-unit=engineering,cost-center=12345,owner=backend-team,location=Baltimore,project=contrast-security"
+    application_tags     = "java,microservice,backend,security,production"
+    server_tags          = "production,east-region,critical,monitored"
+    assess_tags          = "security,compliance,audit,priority-high"
+    inventory_tags       = "third-party,open-source,critical,verified"
+
     # Test session metadata with build information
-    application_session_metadata   = "buildNumber=456,branchName=release/v2.1.0,commitHash=def456,buildDate=2025-01-10,environment=production"
+    application_session_metadata = "buildNumber=456,branchName=release/v2.1.0,commitHash=def456,buildDate=2025-01-10,environment=production"
   }
 
   # Test complex metadata formatting
