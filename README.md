@@ -2,6 +2,10 @@
 
 [![Terraform Registry](https://img.shields.io/badge/terraform-registry-blue.svg)](https://registry.terraform.io/modules/Contrast-Security-OSS/terraform-aws-ecs-contrast-agent-injection/aws)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Tests](https://github.com/contrast-security/ecs-contrast-agent-injection/workflows/Test/badge.svg)](https://github.com/contrast-security/ecs-contrast-agent-injection/actions/workflows/test.yml)
+[![Security](https://github.com/contrast-security/ecs-contrast-agent-injection/workflows/Pre-commit%20Checks/badge.svg)](https://github.com/contrast-security/ecs-contrast-agent-injection/actions/workflows/pre-commit.yml)
+[![Release](https://github.com/contrast-security/ecs-contrast-agent-injection/workflows/Terraform%20Registry%20Publish/badge.svg)](https://github.com/contrast-security/ecs-contrast-agent-injection/actions/workflows/terraform-registry-publish.yml)
+[![Matrix Test](https://github.com/contrast-security/ecs-contrast-agent-injection/workflows/Matrix%20Test/badge.svg)](https://github.com/contrast-security/ecs-contrast-agent-injection/actions/workflows/matrix-test.yml)
 
 A Terraform module for deploying the Contrast Security agent to Amazon ECS tasks using an agent injection pattern with init containers and shared volumes.
 
@@ -176,6 +180,37 @@ For complete examples, see the [examples](./examples/) directory.
 - [Proxy Configuration](./examples/proxy-configuration/) - Example with corporate proxy settings
 - [Multi-Agent Guide](./docs/MULTI_AGENT_GUIDE.md) - Comprehensive guide for all supported agent types
 
+## CI/CD and GitHub Actions
+
+This module includes comprehensive GitHub Actions workflows for automated testing and publishing:
+
+### 🧪 Automated Testing
+- **Terraform validation** and formatting checks
+- **Security scanning** with Trivy and tfsec
+- **Comprehensive test suite** with 66+ test cases
+- **Example validation** to ensure backward compatibility
+
+### 🚀 Automated Publishing
+- **Semantic version releases** triggered by git tags
+- **Automatic publishing** to Terraform Registry
+- **Documentation generation** with terraform-docs
+- **Changelog generation** for each release
+
+### 🔧 Development Workflow
+```bash
+# Run all validation locally (same as CI)
+make ci-validate
+
+# Individual validation steps
+make fmt validate security test-ci
+
+# Create and publish a release
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+For detailed CI/CD documentation, see [.github/README.md](.github/README.md).
+
 ## Testing
 
 This module includes comprehensive tests using Terraform's native testing framework:
@@ -269,4 +304,56 @@ This project is licensed under the Apache 2.0 License - see the [LICENSE](./LICE
 | <a name="output_server_tags"></a> [server\_tags](#output\_server\_tags) | The server tags configured for this server |
 | <a name="output_volume_config"></a> [volume\_config](#output\_volume\_config) | Volume configuration for the task definition |
 | <a name="output_volume_name"></a> [volume\_name](#output\_volume\_name) | Name of the shared volume |
+
+## Development and Contributing
+
+### CI/CD Workflows
+
+This project uses GitHub Actions for continuous integration and deployment:
+
+- **[Test](https://github.com/contrast-security/ecs-contrast-agent-injection/actions/workflows/test.yml)** - Main CI pipeline with validation, testing, and security scanning
+- **[Matrix Test](https://github.com/contrast-security/ecs-contrast-agent-injection/actions/workflows/matrix-test.yml)** - Multi-version compatibility testing
+- **[Pre-commit Checks](https://github.com/contrast-security/ecs-contrast-agent-injection/actions/workflows/pre-commit.yml)** - Code quality and formatting checks
+- **[PR Validation](https://github.com/contrast-security/ecs-contrast-agent-injection/actions/workflows/pr-validation.yml)** - Pull request specific validation
+- **[Terraform Registry Publish](https://github.com/contrast-security/ecs-contrast-agent-injection/actions/workflows/terraform-registry-publish.yml)** - Automated release and registry publishing
+
+### Local Development
+
+```bash
+# Clone the repository
+git clone https://github.com/contrast-security/ecs-contrast-agent-injection.git
+cd ecs-contrast-agent-injection
+
+# Install dependencies
+make install
+
+# Run validation and tests
+make validate
+make test
+
+# Format code
+make fmt
+
+# Run security checks
+make security
+```
+
+### Testing
+
+The module includes comprehensive tests using Terraform's native testing framework:
+
+```bash
+# Run all tests
+terraform test
+
+# Run specific test
+terraform test -filter=basic_configuration
+
+# Run tests with verbose output
+terraform test -verbose
+```
+
+### Contributing
+
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 <!-- END_TF_DOCS -->

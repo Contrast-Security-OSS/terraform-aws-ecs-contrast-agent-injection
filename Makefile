@@ -1,7 +1,7 @@
 # Makefile for ECS Contrast Agent Injection
 
 .PHONY: help init validate plan apply destroy clean docs docker fmt security security-module security-module-detailed security-module-baseline install-tools check-prereqs
-.PHONY: dev-setup lint-terraform check-env
+.PHONY: dev-setup lint-terraform check-env test-ci pre-commit ci-validate
 
 # Default target
 help:
@@ -19,6 +19,14 @@ help:
 	@echo "  dev-setup         - Setup development environment"
 	@echo "  lint-terraform    - Run Terraform linting"
 	@echo "  check-env         - Check environment variables"
+	@echo "  pre-commit        - Run pre-commit checks"
+	@echo ""
+	@echo "CI/CD:"
+	@echo "  test-ci           - Run tests in CI mode"
+	@echo "  ci-validate       - Run full CI validation pipeline"
+	@echo "  check-workflows   - Check GitHub Actions workflow status"
+	@echo "  prepare-release   - Prepare a new release (usage: make prepare-release VERSION=1.0.0)"
+	@echo "  list-releases     - List recent releases"
 	@echo ""
 	@echo "Security:"
 	@echo "  security               - Run security scan on entire project"
@@ -29,6 +37,11 @@ help:
 	@echo "Documentation:"
 	@echo "  docs      - Generate documentation"
 	@echo "  docker    - Build custom Docker image"
+	@echo ""
+	@echo "Release:"
+	@echo "  prepare-release    - Prepare a new release"
+	@echo "  check-workflows    - Check GitHub Actions workflow status"
+	@echo "  list-releases      - List recent releases"
 
 # Initialize Terraform
 init:
@@ -36,8 +49,13 @@ init:
 
 # Validate Terraform configuration
 validate:
-	cd terraform-module && terraform init && terraform validate
+	terraform init && terraform validate
 	cd examples/basic-java-app && terraform init && terraform validate
+	@echo "Running Terraform fmt check..."
+	terraform fmt -check -recursive .
+	@echo "Running tflint..."
+	which tflint > /dev/null 2>&1 && tflint --recursive || echo "tflint not installed"
+	@echo "All validation checks passed!"
 
 # Show Terraform plan
 plan:
@@ -58,21 +76,11 @@ clean:
 	find . -type f -name "*.tfplan" -exec rm -f {} +
 	find . -type f -name "*.log" -exec rm -f {} +
 
-# Basic validation
-validate:
-	cd terraform-module && terraform init && terraform validate
-	cd examples/basic-java-app && terraform init && terraform validate
-	@echo "Running Terraform fmt check..."
-	terraform fmt -check -recursive .
-	@echo "Running tflint..."
-	which tflint > /dev/null 2>&1 && tflint --recursive || echo "tflint not installed"
-	@echo "All validation checks passed!"
-
 # Generate documentation
 docs:
 	@echo "Generating Terraform module documentation..."
 	which terraform-docs > /dev/null 2>&1 && \
-		terraform-docs markdown terraform-module > terraform-module/TERRAFORM_DOCS.md || \
+		terraform-docs markdown . > TERRAFORM_DOCS.md || \
 		echo "terraform-docs not installed"
 
 # Build Docker image
@@ -89,21 +97,21 @@ security:
 	which tfsec > /dev/null 2>&1 && tfsec . || echo "tfsec not installed"
 	which checkov > /dev/null 2>&1 && checkov -d . --framework terraform || echo "checkov not installed"
 
-# Security scan for terraform module only
+# Security scan for module only
 security-module:
-	@echo "Running security scan on terraform-module only..."
-	which tfsec > /dev/null 2>&1 && tfsec terraform-module/ || echo "tfsec not installed"
-	which checkov > /dev/null 2>&1 && checkov -d terraform-module/ --config-file terraform-module/.checkov.yml || echo "checkov not installed"
+	@echo "Running security scan on module only..."
+	which tfsec > /dev/null 2>&1 && tfsec . || echo "tfsec not installed"
+	which checkov > /dev/null 2>&1 && checkov -d . --config-file .checkov.yml || echo "checkov not installed"
 
-# Security scan with detailed output for terraform module
+# Security scan with detailed output for module
 security-module-detailed:
-	@echo "Running detailed security scan on terraform-module..."
-	which checkov > /dev/null 2>&1 && checkov -d terraform-module/ --config-file terraform-module/.checkov.yml --output cli --output sarif --sarif-file-name terraform-module/checkov-results.sarif || echo "checkov not installed"
+	@echo "Running detailed security scan on module..."
+	which checkov > /dev/null 2>&1 && checkov -d . --config-file .checkov.yml --output cli --output sarif --sarif-file-name checkov-results.sarif || echo "checkov not installed"
 
-# Security scan for terraform module with baseline creation
+# Security scan for module with baseline creation
 security-module-baseline:
-	@echo "Creating security baseline for terraform-module..."
-	which checkov > /dev/null 2>&1 && checkov -d terraform-module/ --config-file terraform-module/.checkov.yml --create-baseline terraform-module/.checkov.baseline || echo "checkov not installed"
+	@echo "Creating security baseline for module..."
+	which checkov > /dev/null 2>&1 && checkov -d . --config-file .checkov.yml --create-baseline .checkov.baseline || echo "checkov not installed"
 
 # Install development tools
 install-tools:
@@ -152,7 +160,7 @@ dev-setup: ## Setup development environment with tools
 # Enhanced linting and validation
 lint-terraform: ## Run Terraform linting
 	@echo "Running Terraform linting..."
-	@terraform fmt -check -recursive terraform-module
+	@terraform fmt -check -recursive .
 	@terraform fmt -check -recursive examples
 	@which tflint > /dev/null 2>&1 && tflint --recursive || echo "tflint not installed"
 
@@ -162,4 +170,45 @@ check-env: ## Check environment variables
 	@test -n "$$CONTRAST_API_KEY" || (echo "CONTRAST_API_KEY is not set" && exit 1)
 	@test -n "$$CONTRAST_SERVICE_KEY" || (echo "CONTRAST_SERVICE_KEY is not set" && exit 1)
 	@test -n "$$CONTRAST_USER_NAME" || (echo "CONTRAST_USER_NAME is not set" && exit 1)
-	@echo "All environment variables are set"
+
+# GitHub Actions specific commands
+test-ci: ## Run tests in CI mode
+	@echo "Running tests in CI mode..."
+	terraform init
+	terraform validate
+	terraform test -junit-xml=test-results.xml
+	@echo "Tests completed successfully"
+
+# Pre-commit validation
+pre-commit: ## Run pre-commit checks
+	@echo "Running pre-commit checks..."
+	@make fmt
+	@make validate
+	@make security
+	@echo "Pre-commit checks completed"
+
+# CI validation pipeline
+ci-validate: ## Run full CI validation pipeline
+	@echo "Running full CI validation..."
+	@make fmt
+	@make validate
+	@make security
+	@make test-ci
+	@echo "CI validation completed successfully"
+
+# Release and CI/CD helpers
+check-workflows: ## Check GitHub Actions workflow status
+	@echo "Checking GitHub Actions workflow status..."
+	@./scripts/check-workflows.sh
+
+prepare-release: ## Prepare a new release (usage: make prepare-release VERSION=1.0.0)
+	@echo "Preparing release $(VERSION)..."
+	@if [ -z "$(VERSION)" ]; then \
+		echo "❌ VERSION is required. Usage: make prepare-release VERSION=1.0.0"; \
+		exit 1; \
+	fi
+	@./scripts/release.sh $(VERSION)
+
+list-releases: ## List recent releases
+	@echo "Recent releases:"
+	@git tag -l "v*" --sort=-version:refname | head -10

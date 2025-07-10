@@ -1,0 +1,73 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.8.0"
+
+    - name: Terraform Format Check
+      run: terraform fmt -check -recursive
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Validate
+      run: terraform validate
+
+    - name: Run Terraform Tests
+      run: terraform test
+
+    - name: Generate Release Notes
+      id: release_notes
+      run: |
+        if [ -f "CHANGELOG.md" ]; then
+          # Extract the latest version's changes from CHANGELOG.md
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          echo "Extracting changelog for $TAG_NAME"
+          
+          # Simple extraction of the latest version section
+          sed -n "/^## \[${TAG_NAME#v}\]/,/^## \[/p" CHANGELOG.md | sed '$d' > release_notes.md
+          
+          # If no specific version found, use the top section
+          if [ ! -s release_notes.md ]; then
+            sed -n '/^## /,/^## /p' CHANGELOG.md | sed '$d' > release_notes.md
+          fi
+          
+          echo "release_notes<<EOF" >> $GITHUB_OUTPUT
+          cat release_notes.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        else
+          echo "release_notes=Release ${{ github.ref_name }}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        body: ${{ steps.release_notes.outputs.release_notes }}
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Update Terraform Registry
+      run: |
+        echo "Release ${{ github.ref_name }} has been created."
+        echo "The Terraform Registry will automatically detect this release within a few minutes."
+        echo "Visit https://registry.terraform.io/modules/Contrast-Security-OSS/ecs-contrast-agent-injection/aws to verify publication."

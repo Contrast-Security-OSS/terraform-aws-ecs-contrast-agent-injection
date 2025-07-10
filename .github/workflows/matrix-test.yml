@@ -1,0 +1,109 @@
+name: Matrix Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run weekly on Sunday at 2 AM UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+
+jobs:
+  terraform-matrix:
+    name: Terraform ${{ matrix.terraform-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        terraform-version: 
+          - "1.6.0"  # Minimum supported version
+          - "1.7.0"
+          - "1.8.0"  # Current stable
+          - "latest" # Latest available
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform ${{ matrix.terraform-version }}
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ matrix.terraform-version }}
+
+    - name: Display Terraform Version
+      run: terraform version
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Validate
+      run: terraform validate
+
+    - name: Terraform Format Check
+      run: terraform fmt -check -recursive
+
+    - name: Run Terraform Tests
+      run: terraform test -verbose
+
+    - name: Test Examples
+      run: |
+        for example in examples/*/; do
+          echo "Testing $example with Terraform ${{ matrix.terraform-version }}"
+          cd "$example"
+          terraform init
+          terraform validate
+          terraform plan -out=tfplan
+          cd - > /dev/null
+        done
+
+  aws-provider-matrix:
+    name: AWS Provider ${{ matrix.aws-provider-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        aws-provider-version:
+          - "~> 5.0"
+          - "~> 5.30"
+          - "~> 5.40"
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.8.0"
+
+    - name: Create temporary versions.tf for testing
+      run: |
+        cat > versions_test.tf << EOF
+        terraform {
+          required_version = ">= 1.0"
+          required_providers {
+            aws = {
+              source  = "hashicorp/aws"
+              version = "${{ matrix.aws-provider-version }}"
+            }
+          }
+        }
+        EOF
+
+    - name: Terraform Init with specific AWS provider
+      run: |
+        mv versions.tf versions_original.tf
+        mv versions_test.tf versions.tf
+        terraform init
+
+    - name: Terraform Validate
+      run: terraform validate
+
+    - name: Run Terraform Tests
+      run: terraform test
+
+    - name: Restore original versions.tf
+      run: |
+        mv versions_original.tf versions.tf

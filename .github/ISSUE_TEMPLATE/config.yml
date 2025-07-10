@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or Discussion
+    url: https://github.com/Contrast-Security-OSS/ecs-contrast-agent-injection/discussions
+    about: Ask questions or discuss ideas with the community
+  - name: Contrast Security Support
+    url: https://support.contrastsecurity.com/
+    about: For Contrast Security product support and technical issues

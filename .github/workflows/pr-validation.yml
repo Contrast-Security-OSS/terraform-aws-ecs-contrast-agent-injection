@@ -1,0 +1,97 @@
+name: Pull Request Validation
+
+on:
+  pull_request:
+    branches: [ main ]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  validate:
+    name: Validate PR
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "~1.0"
+    
+    - name: Check PR Title
+      run: |
+        PR_TITLE="${{ github.event.pull_request.title }}"
+        if [[ $PR_TITLE =~ ^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .+ ]]; then
+          echo "✅ PR title follows conventional commits format"
+        else
+          echo "❌ PR title should follow conventional commits format"
+          echo "Examples: feat: add new feature, fix: resolve issue, docs: update readme"
+          exit 1
+        fi
+    
+    - name: Check for Breaking Changes
+      run: |
+        echo "🔍 Checking for potential breaking changes..."
+        
+        # Check if any required variables were removed or changed
+        if git diff origin/main...HEAD --name-only | grep -q "variables.tf"; then
+          echo "⚠️  Variables file modified - please ensure backward compatibility"
+          git diff origin/main...HEAD variables.tf
+        fi
+        
+        # Check if any outputs were removed
+        if git diff origin/main...HEAD --name-only | grep -q "outputs.tf"; then
+          echo "⚠️  Outputs file modified - please ensure backward compatibility"
+          git diff origin/main...HEAD outputs.tf
+        fi
+    
+    - name: Size Check
+      run: |
+        echo "📏 Checking repository size..."
+        REPO_SIZE=$(du -sh . | cut -f1)
+        echo "Current size: $REPO_SIZE"
+        
+        # Check for large files
+        LARGE_FILES=$(find . -type f -size +1M -not -path "./.git/*" -not -path "./.terraform/*" | wc -l)
+        if [ $LARGE_FILES -gt 0 ]; then
+          echo "⚠️  Found $LARGE_FILES large files (>1MB):"
+          find . -type f -size +1M -not -path "./.git/*" -not -path "./.terraform/*"
+        fi
+    
+    - name: Documentation Check
+      run: |
+        echo "📚 Checking documentation..."
+        
+        # Check if README was updated for significant changes
+        if git diff origin/main...HEAD --name-only | grep -E '\.(tf|tfvars)$' | wc -l | grep -q '^[1-9]'; then
+          if ! git diff origin/main...HEAD --name-only | grep -q "README.md"; then
+            echo "⚠️  Terraform files changed but README not updated"
+            echo "Consider updating README.md if user-facing changes were made"
+          fi
+        fi
+    
+    - name: Check for Test Changes
+      run: |
+        echo "🧪 Checking for test modifications..."
+        
+        # Check if test files were modified
+        if git diff origin/main...HEAD --name-only | grep -E '\.(tftest\.hcl|test\.tf)$' | wc -l | grep -q '^[1-9]'; then
+          echo "✅ Test files modified - good practice!"
+        elif git diff origin/main...HEAD --name-only | grep -E '\.(tf)$' | wc -l | grep -q '^[1-9]'; then
+          echo "⚠️  Terraform files changed but no test updates"
+          echo "Consider adding or updating tests for new functionality"
+        fi
+    
+    - name: PR Summary
+      run: |
+        echo "## Pull Request Validation Summary"
+        echo "- ✅ PR title format validated"
+        echo "- ✅ Breaking changes checked"
+        echo "- ✅ Repository size checked"
+        echo "- ✅ Documentation checked"
+        echo "- ✅ Test coverage checked"
+        echo ""
+        echo "PR-specific validations completed! 🚀"
+        echo ""
+        echo "Note: Core validation (format, syntax, tests, security) will be handled by the main CI workflow."

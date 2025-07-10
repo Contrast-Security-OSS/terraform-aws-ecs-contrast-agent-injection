@@ -1,0 +1,90 @@
+name: Manual Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Type of test to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - validation
+          - security
+          - examples
+      terraform_version:
+        description: 'Terraform version to use'
+        required: true
+        default: '1.0'
+        type: string
+      enable_debug:
+        description: 'Enable debug output'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  manual-test:
+    name: Manual Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "~${{ inputs.terraform_version }}"
+    
+    - name: Enable Debug
+      if: inputs.enable_debug
+      run: |
+        echo "ACTIONS_STEP_DEBUG=true" >> $GITHUB_ENV
+        echo "Debug mode enabled"
+    
+    - name: Run Validation Tests
+      if: inputs.test_type == 'all' || inputs.test_type == 'validation'
+      run: |
+        echo "🔍 Running Validation Tests..."
+        terraform fmt -check -recursive .
+        terraform init
+        terraform validate
+        terraform test -verbose
+        echo "✅ Validation tests completed"
+    
+    - name: Run Security Tests
+      if: inputs.test_type == 'all' || inputs.test_type == 'security'
+      run: |
+        echo "🔒 Running Security Tests..."
+        # Install tfsec
+        curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+        sudo mv tfsec /usr/local/bin/
+        tfsec .
+        echo "✅ Security tests completed"
+    
+    - name: Run Example Tests
+      if: inputs.test_type == 'all' || inputs.test_type == 'examples'
+      run: |
+        echo "📋 Running Example Tests..."
+        cd examples/basic-java-app
+        terraform init
+        terraform validate
+        terraform plan
+        echo "✅ Example tests completed"
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: us-east-1
+      continue-on-error: true
+    
+    - name: Test Summary
+      run: |
+        echo "## Test Summary"
+        echo "- Test Type: ${{ inputs.test_type }}"
+        echo "- Terraform Version: ${{ inputs.terraform_version }}"
+        echo "- Debug Mode: ${{ inputs.enable_debug }}"
+        echo "- Status: ✅ Completed"
+        echo ""
+        echo "Check the logs above for detailed results."

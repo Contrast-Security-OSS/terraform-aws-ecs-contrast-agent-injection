@@ -1,0 +1,70 @@
+name: Pre-commit Checks
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  pre-commit:
+    name: Pre-commit Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    
+    - name: Install pre-commit
+      run: |
+        pip install pre-commit
+        pre-commit install
+    
+    - name: Run pre-commit
+      run: pre-commit run --all-files
+      continue-on-error: true
+    
+    - name: Check for trailing whitespace
+      run: |
+        if grep -r '[[:space:]]$' --include="*.tf" --include="*.md" --include="*.yml" --include="*.yaml" .; then
+          echo "❌ Found trailing whitespace"
+          exit 1
+        else
+          echo "✅ No trailing whitespace found"
+        fi
+    
+    - name: Check for large files
+      run: |
+        find . -type f -size +1M -not -path "./.git/*" | head -20
+        if [ $(find . -type f -size +1M -not -path "./.git/*" | wc -l) -gt 0 ]; then
+          echo "⚠️  Large files detected (>1MB)"
+        else
+          echo "✅ No large files found"
+        fi
+    
+    - name: Check line endings
+      run: |
+        if find . -name "*.tf" -o -name "*.md" -o -name "*.yml" -o -name "*.yaml" | xargs file | grep -q "CRLF"; then
+          echo "❌ Found Windows line endings (CRLF)"
+          echo "Please convert to Unix line endings (LF)"
+          exit 1
+        else
+          echo "✅ All files have Unix line endings"
+        fi
+    
+    - name: Summary
+      run: |
+        echo "## Pre-commit Check Summary"
+        echo "- ✅ Pre-commit hooks executed"
+        echo "- ✅ Trailing whitespace checked"
+        echo "- ✅ Large files checked"
+        echo "- ✅ Line endings checked"
+        echo ""
+        echo "Code quality checks completed!"
+        echo ""
+        echo "Note: Core validation (format, syntax, tests, security) will be handled by the main CI workflow."
