@@ -144,3 +144,52 @@ variable "contrast_agent_version" {
     error_message = "Agent version must be 'latest' or a semantic version (e.g., 3.12.2)"
   }
 }
+
+# Additional Contrast Configuration Variables
+variable "application_group" {
+  description = "Name of the application group with which this application should be associated in Contrast"
+  type        = string
+  default     = ""
+}
+
+variable "application_code" {
+  description = "Application code this application should use in Contrast"
+  type        = string
+  default     = ""
+}
+
+variable "application_version" {
+  description = "Override the reported application version"
+  type        = string
+  default     = ""
+}
+
+variable "application_tags" {
+  description = "Apply labels to an application. Labels must be formatted as a comma-delimited list. Example: label1, label2, label3"
+  type        = string
+  default     = ""
+}
+
+variable "application_metadata" {
+  description = "Define a set of key=value pairs for specifying user-defined metadata associated with the application. Example: business-unit=accounting, office=Baltimore"
+  type        = string
+  default     = ""
+}
+
+variable "server_tags" {
+  description = "Apply a list of labels to the server. Labels must be formatted as a comma-delimited list. Example: label1, label2, label3"
+  type        = string
+  default     = ""
+}
+
+variable "assess_tags" {
+  description = "Apply a list of labels to vulnerabilities and preflight messages. Labels must be formatted as a comma-delimited list. Example: label1, label2, label3"
+  type        = string
+  default     = ""
+}
+
+variable "inventory_tags" {
+  description = "Apply a list of labels to libraries. Labels must be formatted as a comma-delimited list. Example: label1, label2, label3"
+  type        = string
+  default     = ""
+}

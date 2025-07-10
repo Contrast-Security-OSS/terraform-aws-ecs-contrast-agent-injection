@@ -11,6 +11,15 @@ locals {
     # Or no authentication (when disabled or all empty)
     (var.contrast_api_token == "" && var.contrast_api_key == "" && var.contrast_service_key == "" && var.contrast_user_name == "" && !var.enabled)
   )
+
+  # Session configuration validation
+  session_configuration_validation = (
+    # Either both are empty
+    (var.application_session_id == "" && var.application_session_metadata == "") ||
+    # Or only one is set
+    (var.application_session_id != "" && var.application_session_metadata == "") ||
+    (var.application_session_id == "" && var.application_session_metadata != "")
+  )
 }
 
 # Error if validation fails
@@ -21,6 +30,18 @@ resource "terraform_data" "authentication_validation" {
     precondition {
       condition     = local.authentication_method_validation
       error_message = "You must use either contrast_api_token OR all three of (contrast_api_key, contrast_service_key, contrast_user_name), but not both authentication methods. When enabled=true, you must provide authentication credentials."
+    }
+  }
+}
+
+# Error if session configuration validation fails
+resource "terraform_data" "session_configuration_validation" {
+  count = local.session_configuration_validation ? 0 : 1
+
+  lifecycle {
+    precondition {
+      condition     = local.session_configuration_validation
+      error_message = "application_session_id and application_session_metadata are mutually exclusive - only one can be set."
     }
   }
 }
@@ -174,7 +195,70 @@ locals {
         name  = "CONTRAST__API__USER_NAME"
         value = var.contrast_user_name
       }
-    ]
+    ],
+    # Add additional application configuration variables
+    var.application_group != "" ? [
+      {
+        name  = "CONTRAST__APPLICATION__GROUP"
+        value = var.application_group
+      }
+    ] : [],
+    var.application_code != "" ? [
+      {
+        name  = "CONTRAST__APPLICATION__CODE"
+        value = var.application_code
+      }
+    ] : [],
+    var.application_version != "" ? [
+      {
+        name  = "CONTRAST__APPLICATION__VERSION"
+        value = var.application_version
+      }
+    ] : [],
+    var.application_tags != "" ? [
+      {
+        name  = "CONTRAST__APPLICATION__TAGS"
+        value = var.application_tags
+      }
+    ] : [],
+    var.application_metadata != "" ? [
+      {
+        name  = "CONTRAST__APPLICATION__METADATA"
+        value = var.application_metadata
+      }
+    ] : [],
+    var.application_session_id != "" ? [
+      {
+        name  = "CONTRAST__APPLICATION__SESSION_ID"
+        value = var.application_session_id
+      }
+    ] : [],
+    var.application_session_metadata != "" ? [
+      {
+        name  = "CONTRAST__APPLICATION__SESSION_METADATA"
+        value = var.application_session_metadata
+      }
+    ] : [],
+    # Add server configuration variables
+    var.server_tags != "" ? [
+      {
+        name  = "CONTRAST__SERVER__TAGS"
+        value = var.server_tags
+      }
+    ] : [],
+    # Add assessment and inventory tags
+    var.assess_tags != "" ? [
+      {
+        name  = "CONTRAST__ASSESS__TAGS"
+        value = var.assess_tags
+      }
+    ] : [],
+    var.inventory_tags != "" ? [
+      {
+        name  = "CONTRAST__INVENTORY__TAGS"
+        value = var.inventory_tags
+      }
+    ] : []
     ) : [
     {
       name  = "CONTRAST_ENABLED"

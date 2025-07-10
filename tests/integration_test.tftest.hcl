@@ -27,6 +27,16 @@ variables {
     password  = "secure-proxy-password"
     auth_type = "Basic"
   }
+  
+  # Add additional configuration options for comprehensive testing
+  application_group        = "Integration Test Services"
+  application_code         = "integration-001"
+  application_version      = "3.14.1"
+  application_tags         = "java,integration,production"
+  application_metadata     = "business-unit=qa,test-suite=integration,environment=production"
+  server_tags              = "integration,production,monitored"
+  assess_tags              = "integration-testing,automated"
+  inventory_tags           = "integration-dependencies,verified"
 }
 
 run "integration_test_complete_setup" {
@@ -168,21 +178,69 @@ run "integration_test_environment_variables" {
     error_message = "Should set proxy port"
   }
 
-  # Test additional environment variables
+  # Test additional configuration options
   assert {
     condition = length([
-      for env in local.optional_env_vars : env
-      if env.name == "INTEGRATION_TEST" && env.value == "true"
+      for env in local.contrast_env_vars : env
+      if env.name == "CONTRAST__APPLICATION__GROUP" && env.value == "Integration Test Services"
     ]) == 1
-    error_message = "Should include custom integration test variable"
+    error_message = "Should set application group correctly"
   }
 
   assert {
     condition = length([
-      for env in local.optional_env_vars : env
-      if env.name == "CUSTOM_CONFIG" && env.value == "production-value"
+      for env in local.contrast_env_vars : env
+      if env.name == "CONTRAST__APPLICATION__CODE" && env.value == "integration-001"
     ]) == 1
-    error_message = "Should include custom config variable"
+    error_message = "Should set application code correctly"
+  }
+
+  assert {
+    condition = length([
+      for env in local.contrast_env_vars : env
+      if env.name == "CONTRAST__APPLICATION__VERSION" && env.value == "3.14.1"
+    ]) == 1
+    error_message = "Should set application version correctly"
+  }
+
+  assert {
+    condition = length([
+      for env in local.contrast_env_vars : env
+      if env.name == "CONTRAST__APPLICATION__TAGS" && env.value == "java,integration,production"
+    ]) == 1
+    error_message = "Should set application tags correctly"
+  }
+
+  assert {
+    condition = length([
+      for env in local.contrast_env_vars : env
+      if env.name == "CONTRAST__APPLICATION__METADATA" && env.value == "business-unit=qa,test-suite=integration,environment=production"
+    ]) == 1
+    error_message = "Should set application metadata correctly"
+  }
+
+  assert {
+    condition = length([
+      for env in local.contrast_env_vars : env
+      if env.name == "CONTRAST__SERVER__TAGS" && env.value == "integration,production,monitored"
+    ]) == 1
+    error_message = "Should set server tags correctly"
+  }
+
+  assert {
+    condition = length([
+      for env in local.contrast_env_vars : env
+      if env.name == "CONTRAST__ASSESS__TAGS" && env.value == "integration-testing,automated"
+    ]) == 1
+    error_message = "Should set assess tags correctly"
+  }
+
+  assert {
+    condition = length([
+      for env in local.contrast_env_vars : env
+      if env.name == "CONTRAST__INVENTORY__TAGS" && env.value == "integration-dependencies,verified"
+    ]) == 1
+    error_message = "Should set inventory tags correctly"
   }
 }
 

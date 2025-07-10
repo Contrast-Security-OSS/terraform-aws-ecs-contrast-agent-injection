@@ -212,7 +212,15 @@ This project is licensed under the Apache 2.0 License - see the [LICENSE](./LICE
 |------|-------------|------|---------|:--------:|
 | <a name="input_additional_env_vars"></a> [additional\_env\_vars](#input\_additional\_env\_vars) | Additional environment variables for Contrast configuration | `map(string)` | `{}` | no |
 | <a name="input_agent_type"></a> [agent\_type](#input\_agent\_type) | Type of Contrast agent to deploy (java) | `string` | `"java"` | no |
+| <a name="input_application_code"></a> [application\_code](#input\_application\_code) | Application code this application should use in Contrast | `string` | `""` | no |
+| <a name="input_application_group"></a> [application\_group](#input\_application\_group) | Name of the application group with which this application should be associated in Contrast | `string` | `""` | no |
+| <a name="input_application_metadata"></a> [application\_metadata](#input\_application\_metadata) | Define a set of key=value pairs for specifying user-defined metadata associated with the application. The set must be formatted as a comma-delimited list of key=value pairs. Example: business-unit=accounting, office=Baltimore | `string` | `""` | no |
 | <a name="input_application_name"></a> [application\_name](#input\_application\_name) | Name of the application as it will appear in Contrast | `string` | n/a | yes |
+| <a name="input_application_session_id"></a> [application\_session\_id](#input\_application\_session\_id) | Provide the ID of a session that already exists in Contrast. Vulnerabilities discovered by the agent are associated with this session. Mutually exclusive with application\_session\_metadata | `string` | `""` | no |
+| <a name="input_application_session_metadata"></a> [application\_session\_metadata](#input\_application\_session\_metadata) | Provide metadata that is used to create a new session ID in Contrast. This value should be formatted as key=value pairs (conforming to RFC 2253). Mutually exclusive with application\_session\_id | `string` | `""` | no |
+| <a name="input_application_tags"></a> [application\_tags](#input\_application\_tags) | Apply labels to an application. Labels must be formatted as a comma-delimited list. Example: label1, label2, label3 | `string` | `""` | no |
+| <a name="input_application_version"></a> [application\_version](#input\_application\_version) | Override the reported application version | `string` | `""` | no |
+| <a name="input_assess_tags"></a> [assess\_tags](#input\_assess\_tags) | Apply a list of labels to vulnerabilities and preflight messages. Labels must be formatted as a comma-delimited list. Example: label1, label2, label3 | `string` | `""` | no |
 | <a name="input_contrast_agent_version"></a> [contrast\_agent\_version](#input\_contrast\_agent\_version) | Specific version of the Contrast agent to use | `string` | `"latest"` | no |
 | <a name="input_contrast_api_key"></a> [contrast\_api\_key](#input\_contrast\_api\_key) | API key for Contrast agent authentication (use with service\_key and user\_name) | `string` | `""` | no |
 | <a name="input_contrast_api_token"></a> [contrast\_api\_token](#input\_contrast\_api\_token) | API token for Contrast agent authentication (alternative to api\_key/service\_key/user\_name) | `string` | `""` | no |
@@ -225,9 +233,11 @@ This project is licensed under the Apache 2.0 License - see the [LICENSE](./LICE
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment name (e.g., PRODUCTION, QA, DEVELOPMENT) | `string` | n/a | yes |
 | <a name="input_init_container_cpu"></a> [init\_container\_cpu](#input\_init\_container\_cpu) | CPU units for the init container | `number` | `2` | no |
 | <a name="input_init_container_memory"></a> [init\_container\_memory](#input\_init\_container\_memory) | Memory (in MB) for the init container | `number` | `6` | no |
+| <a name="input_inventory_tags"></a> [inventory\_tags](#input\_inventory\_tags) | Apply a list of labels to libraries. Labels must be formatted as a comma-delimited list. Example: label1, label2, label3 | `string` | `""` | no |
 | <a name="input_log_group_name"></a> [log\_group\_name](#input\_log\_group\_name) | CloudWatch log group name for the init container (must be created externally) | `string` | n/a | yes |
 | <a name="input_proxy_settings"></a> [proxy\_settings](#input\_proxy\_settings) | Proxy settings for the Contrast agent | <pre>object({<br/>    url       = optional(string, "")<br/>    host      = optional(string, "")<br/>    port      = optional(number, 0)<br/>    scheme    = optional(string, "http")<br/>    username  = optional(string, "")<br/>    password  = optional(string, "")<br/>    auth_type = optional(string, "")<br/>  })</pre> | `null` | no |
 | <a name="input_server_name"></a> [server\_name](#input\_server\_name) | Server name in Contrast UI (defaults to app-name-region if not specified) | `string` | `""` | no |
+| <a name="input_server_tags"></a> [server\_tags](#input\_server\_tags) | Apply a list of labels to the server. Labels must be formatted as a comma-delimited list. Example: label1, label2, label3 | `string` | `""` | no |
 
 ## Outputs
 
@@ -239,14 +249,24 @@ This project is licensed under the Apache 2.0 License - see the [LICENSE](./LICE
 | <a name="output_agent_path"></a> [agent\_path](#output\_agent\_path) | Path where the Contrast agent is mounted in the application container |
 | <a name="output_agent_type"></a> [agent\_type](#output\_agent\_type) | The type of Contrast agent being used |
 | <a name="output_app_mount_points"></a> [app\_mount\_points](#output\_app\_mount\_points) | Mount points for the application container |
+| <a name="output_application_code"></a> [application\_code](#output\_application\_code) | The application code configured for this application |
+| <a name="output_application_group"></a> [application\_group](#output\_application\_group) | The application group configured for this application |
+| <a name="output_application_metadata"></a> [application\_metadata](#output\_application\_metadata) | The application metadata configured for this application |
+| <a name="output_application_session_id"></a> [application\_session\_id](#output\_application\_session\_id) | The application session ID configured for this application |
+| <a name="output_application_session_metadata"></a> [application\_session\_metadata](#output\_application\_session\_metadata) | The application session metadata configured for this application |
+| <a name="output_application_tags"></a> [application\_tags](#output\_application\_tags) | The application tags configured for this application |
+| <a name="output_application_version"></a> [application\_version](#output\_application\_version) | The application version configured for this application |
+| <a name="output_assess_tags"></a> [assess\_tags](#output\_assess\_tags) | The assess tags configured for vulnerabilities and preflight messages |
 | <a name="output_authentication_method"></a> [authentication\_method](#output\_authentication\_method) | The authentication method being used (token or three-key) |
 | <a name="output_container_dependencies"></a> [container\_dependencies](#output\_container\_dependencies) | Container dependencies for the application container |
 | <a name="output_contrast_server_name"></a> [contrast\_server\_name](#output\_contrast\_server\_name) | The computed Contrast server name |
 | <a name="output_environment_variables"></a> [environment\_variables](#output\_environment\_variables) | Environment variables for the application container |
 | <a name="output_init_container_definitions"></a> [init\_container\_definitions](#output\_init\_container\_definitions) | Container definitions for the Contrast init container |
 | <a name="output_init_container_name"></a> [init\_container\_name](#output\_init\_container\_name) | Name of the init container |
+| <a name="output_inventory_tags"></a> [inventory\_tags](#output\_inventory\_tags) | The inventory tags configured for libraries |
 | <a name="output_module_version"></a> [module\_version](#output\_module\_version) | Version of the Contrast agent being used |
 | <a name="output_proxy_configured"></a> [proxy\_configured](#output\_proxy\_configured) | Whether proxy settings are configured |
+| <a name="output_server_tags"></a> [server\_tags](#output\_server\_tags) | The server tags configured for this server |
 | <a name="output_volume_config"></a> [volume\_config](#output\_volume\_config) | Volume configuration for the task definition |
 | <a name="output_volume_name"></a> [volume\_name](#output\_volume\_name) | Name of the shared volume |
 <!-- END_TF_DOCS -->

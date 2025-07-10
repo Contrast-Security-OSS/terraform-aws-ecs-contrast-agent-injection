@@ -49,3 +49,18 @@ contrast_agent_version  = "latest"
 #   password  = "proxy_pass"
 #   auth_type = "Basic"
 # }
+
+# Additional Contrast Configuration (optional)
+# Application organization and metadata
+# application_group    = "Backend Services"
+# application_code     = "backend-001"
+# application_version  = "1.2.3"
+# application_tags     = "java,microservice,backend"
+# application_metadata = "business-unit=engineering,cost-center=12345,owner=backend-team"
+
+# Server identification
+# server_tags         = "production,east-region,critical"
+
+# Assessment and inventory tags
+# assess_tags         = "security,compliance,audit"
+# inventory_tags      = "third-party,open-source,critical"

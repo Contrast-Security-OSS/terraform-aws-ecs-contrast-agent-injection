@@ -274,6 +274,20 @@ module "contrast_agent_injection" {
   log_group_name         = aws_cloudwatch_log_group.contrast.name
   contrast_agent_version = var.contrast_agent_version
   enable_stdout_logging  = true
+
+  # Additional application configuration
+  application_group    = var.application_group
+  application_code     = var.application_code
+  application_version  = var.application_version
+  application_tags     = var.application_tags
+  application_metadata = var.application_metadata
+
+  # Server configuration
+  server_tags = var.server_tags
+
+  # Assessment and inventory tags
+  assess_tags    = var.assess_tags
+  inventory_tags = var.inventory_tags
 }
 
 # ECS Task Definition

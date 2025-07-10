@@ -165,3 +165,66 @@ variable "agent_type" {
     error_message = "Agent type must be one of: java."
   }
 }
+
+# Additional Application Configuration Variables
+variable "application_group" {
+  description = "Name of the application group with which this application should be associated in Contrast"
+  type        = string
+  default     = ""
+}
+
+variable "application_code" {
+  description = "Application code this application should use in Contrast"
+  type        = string
+  default     = ""
+}
+
+variable "application_version" {
+  description = "Override the reported application version"
+  type        = string
+  default     = ""
+}
+
+variable "application_tags" {
+  description = "Apply labels to an application. Labels must be formatted as a comma-delimited list. Example: label1, label2, label3"
+  type        = string
+  default     = ""
+}
+
+variable "application_metadata" {
+  description = "Define a set of key=value pairs for specifying user-defined metadata associated with the application. The set must be formatted as a comma-delimited list of key=value pairs. Example: business-unit=accounting, office=Baltimore"
+  type        = string
+  default     = ""
+}
+
+variable "application_session_id" {
+  description = "Provide the ID of a session that already exists in Contrast. Vulnerabilities discovered by the agent are associated with this session. Mutually exclusive with application_session_metadata"
+  type        = string
+  default     = ""
+}
+
+variable "application_session_metadata" {
+  description = "Provide metadata that is used to create a new session ID in Contrast. This value should be formatted as key=value pairs (conforming to RFC 2253). Mutually exclusive with application_session_id"
+  type        = string
+  default     = ""
+}
+
+# Additional Server Configuration Variables
+variable "server_tags" {
+  description = "Apply a list of labels to the server. Labels must be formatted as a comma-delimited list. Example: label1, label2, label3"
+  type        = string
+  default     = ""
+}
+
+# Assessment and Inventory Tags
+variable "assess_tags" {
+  description = "Apply a list of labels to vulnerabilities and preflight messages. Labels must be formatted as a comma-delimited list. Example: label1, label2, label3"
+  type        = string
+  default     = ""
+}
+
+variable "inventory_tags" {
+  description = "Apply a list of labels to libraries. Labels must be formatted as a comma-delimited list. Example: label1, label2, label3"
+  type        = string
+  default     = ""
+}
