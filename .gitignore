@@ -21,10 +21,11 @@ checkov-results.json
 checkov-results.xml
 .checkov.baseline
 
-# Environment variables
+# Environment variables and secrets
 .env
 .env.*
 !.env.example
+.secrets
 
 # AWS
 .aws/
