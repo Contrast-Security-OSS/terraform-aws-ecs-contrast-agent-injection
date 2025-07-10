@@ -4,10 +4,10 @@ locals {
   # Agent-specific configuration
   agent_configs = {
     java = {
-      image_name      = "contrast/agent-java"
-      mount_path      = "/opt/contrast/java"
-      agent_filename  = "contrast-agent.jar"
-      activation_env  = "JAVA_TOOL_OPTIONS"
+      image_name       = "contrast/agent-java"
+      mount_path       = "/opt/contrast/java"
+      agent_filename   = "contrast-agent.jar"
+      activation_env   = "JAVA_TOOL_OPTIONS"
       activation_value = "-javaagent:/opt/contrast/java/contrast-agent.jar"
       specific_env_vars = [
         {
@@ -54,7 +54,7 @@ locals {
     environment = [{
       name  = "CONTRAST_MOUNT_PATH"
       value = local.init_mount_path
-    }, {
+      }, {
       name  = "CONTRAST_AGENT_TYPE"
       value = var.agent_type
     }]
@@ -139,7 +139,7 @@ locals {
       name  = local.current_agent_config.activation_env
       value = local.current_agent_config.activation_value
     }
-  ] : [
+    ] : [
     {
       name  = "CONTRAST_ENABLED"
       value = "false"
@@ -172,22 +172,22 @@ locals {
         {
           name  = "CONTRAST__API__PROXY__SCHEME"
           value = var.proxy_settings.scheme
-        }],
+      }],
       var.proxy_settings.username != "" ? [
         {
           name  = "CONTRAST__API__PROXY__USER"
           value = var.proxy_settings.username
-        }] : [],
+      }] : [],
       var.proxy_settings.password != "" ? [
         {
           name  = "CONTRAST__API__PROXY__PASS"
           value = var.proxy_settings.password
-        }] : [],
+      }] : [],
       var.proxy_settings.auth_type != "" ? [
         {
           name  = "CONTRAST__API__PROXY__AUTH_TYPE"
           value = var.proxy_settings.auth_type
-        }] : []) : []
+    }] : []) : []
   ) : local.base_contrast_env_vars
 
   # Additional optional environment variables
