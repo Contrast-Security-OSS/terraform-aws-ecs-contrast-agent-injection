@@ -69,6 +69,9 @@ jobs:
         }
         EOF
 
+    - name: Terraform Init
+      run: terraform init
+
     - name: Run Terraform Tests
       run: terraform test -verbose
 
