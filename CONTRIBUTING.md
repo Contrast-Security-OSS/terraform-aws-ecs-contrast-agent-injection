@@ -18,7 +18,7 @@ Thank you for your interest in contributing to this Terraform module! We welcome
 1. Clone the repository:
    ```bash
    git clone https://github.com/Contrast-Security-OSS/terraform-aws-ecs-contrast-agent-injection.git
-   cd ecs-contrast-agent-injection
+   cd terraform-aws-ecs-contrast-agent-injection
    ```
 
 2. Install development tools:
