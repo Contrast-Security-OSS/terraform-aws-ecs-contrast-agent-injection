@@ -101,7 +101,6 @@ jobs:
 
         # Install tfsec
         curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
-        sudo mv tfsec /usr/local/bin/
         tfsec .
         echo "✅ Security tests completed"
 
