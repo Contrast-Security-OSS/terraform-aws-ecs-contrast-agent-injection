@@ -22,7 +22,7 @@ jobs:
     - name: Check PR Title
       run: |
         PR_TITLE="${{ github.event.pull_request.title }}"
-        if [[ $PR_TITLE =~ ^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .+ ]]; then
+        if [[ $PR_TITLE =~ ^(feat|fix|docs|style|refactor|test|chore)(\([^)]+\))?: .+ ]]; then
           echo "✅ PR title follows conventional commits format"
         else
           echo "❌ PR title should follow conventional commits format"
