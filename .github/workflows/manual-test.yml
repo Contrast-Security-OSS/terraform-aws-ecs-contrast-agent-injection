@@ -16,7 +16,7 @@ on:
       terraform_version:
         description: 'Terraform version to use'
         required: true
-        default: '1.0'
+        default: '1.12.2'
         type: string
       enable_debug:
         description: 'Enable debug output'

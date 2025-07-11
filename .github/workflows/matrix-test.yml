@@ -18,9 +18,13 @@ jobs:
       fail-fast: false
       matrix:
         terraform-version: 
-          - "1.6.0"  # Minimum supported version
-          - "1.7.0"
-          - "1.8.0"  # Current stable
+          - "1.6.7"  # Minimum supported version
+          - "1.7.6"
+          - "1.8.6"  # Current stable
+          - "1.9.9"
+          - "1.10.5"
+          - "1.11.4"
+          - "1.12.2"
           - "latest" # Latest available
     
     steps:
@@ -65,9 +69,8 @@ jobs:
       fail-fast: false
       matrix:
         aws-provider-version:
-          - "~> 5.0"
-          - "~> 5.30"
-          - "~> 5.40"
+          - "5.100.0"
+          - "6.3.0"
     
     steps:
     - name: Checkout
@@ -76,13 +79,13 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
-        terraform_version: "1.8.0"
+        terraform_version: "1.12.2"
 
     - name: Create temporary versions.tf for testing
       run: |
         cat > versions_test.tf << EOF
         terraform {
-          required_version = ">= 1.0"
+          required_version = ">= 1.6.0"
           required_providers {
             aws = {
               source  = "hashicorp/aws"
