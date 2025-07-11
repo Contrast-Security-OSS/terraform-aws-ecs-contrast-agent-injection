@@ -55,3 +55,42 @@ Proxy credentials are marked as sensitive and should be managed securely, prefer
 - AWS Secrets Manager
 - Environment variables in CI/CD
 - Encrypted terraform.tfvars files
+
+<!-- BEGIN_TF_DOCS -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
+
+## Providers
+
+No providers.
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_contrast_agent_injection_with_proxy"></a> [contrast\_agent\_injection\_with\_proxy](#module\_contrast\_agent\_injection\_with\_proxy) | ../.. | n/a |
+
+## Resources
+
+No resources.
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_contrast_api_key"></a> [contrast\_api\_key](#input\_contrast\_api\_key) | Contrast API key | `string` | n/a | yes |
+| <a name="input_contrast_service_key"></a> [contrast\_service\_key](#input\_contrast\_service\_key) | Contrast service key | `string` | n/a | yes |
+| <a name="input_contrast_user_name"></a> [contrast\_user\_name](#input\_contrast\_user\_name) | Contrast user name | `string` | n/a | yes |
+| <a name="input_proxy_password"></a> [proxy\_password](#input\_proxy\_password) | Proxy password | `string` | `""` | no |
+| <a name="input_proxy_username"></a> [proxy\_username](#input\_proxy\_username) | Proxy username | `string` | `""` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_contrast_enabled"></a> [contrast\_enabled](#output\_contrast\_enabled) | Example outputs |
+| <a name="output_proxy_configured"></a> [proxy\_configured](#output\_proxy\_configured) | n/a |
+<!-- END_TF_DOCS -->
