@@ -1,0 +1,59 @@
+name: Make Commands
+
+on:
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'Make command to run'
+        required: true
+        default: 'help'
+        type: choice
+        options:
+          - help
+          - validate
+          - fmt
+          - security
+          - docs
+          - clean
+
+jobs:
+  make-command:
+    name: Run Make Command
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.12.2"
+
+    - name: Install additional tools
+      run: |
+        # Install tfsec
+        curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+
+        # Install terraform-docs
+        curl -sSLo ./terraform-docs.tar.gz https://terraform-docs.io/dl/v0.20.0/terraform-docs-v0.20.0-$(uname)-amd64.tar.gz
+        tar -xzf terraform-docs.tar.gz
+        chmod +x terraform-docs
+        sudo mv terraform-docs /usr/local/bin/terraform-docs
+
+        # Install tflint
+        curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+
+    - name: Run Make Command
+      run: make ${{ github.event.inputs.command }}
+
+    - name: Upload artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: make-${{ github.event.inputs.command }}-output
+        path: |
+          **/*.log
+          **/*.sarif
+          **/*.md
+        if-no-files-found: ignore
