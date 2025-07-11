@@ -75,7 +75,7 @@ jobs:
           echo "Testing $example with Terraform ${{ matrix.terraform-version }}"
           cd "$example"
           
-          # Setup mock AWS provider for examples
+          # Setup mock AWS provider for examples - this needs to override the existing provider
           cat > provider_override.tf << 'EOF'
         provider "aws" {
           region                      = "us-east-1"
@@ -91,9 +91,10 @@ jobs:
           terraform init
           terraform validate
           
-          # Create minimal tfvars file for testing
+          # Create minimal tfvars file for testing - must include aws_profile
           cat > terraform.tfvars << 'EOF'
         aws_region = "us-east-1"
+        aws_profile = ""
         app_image = "nginx:latest"
         contrast_enabled = false
         contrast_api_url = "https://app.contrastsecurity.com/Contrast"
