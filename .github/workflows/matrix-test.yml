@@ -101,12 +101,13 @@ jobs:
         contrast_api_key = "dummy"
         contrast_service_key = "dummy"
         contrast_user_name = "dummy@example.com"
+        availability_zones = ["us-east-1a", "us-east-1b"]
         EOF
           
           terraform plan -out=tfplan
           
           # Cleanup
-          rm -f provider_override.tf terraform.tfvars
+          rm -f provider_override.tf terraform.tfvars tfplan
           
           cd - > /dev/null
         done
