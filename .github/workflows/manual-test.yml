@@ -28,22 +28,22 @@ jobs:
   manual-test:
     name: Manual Test
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
-    
+
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
         terraform_version: "~${{ inputs.terraform_version }}"
-    
+
     - name: Enable Debug
       if: inputs.enable_debug
       run: |
         echo "ACTIONS_STEP_DEBUG=true" >> $GITHUB_ENV
         echo "Debug mode enabled"
-    
+
     - name: Run Validation Tests
       if: inputs.test_type == 'all' || inputs.test_type == 'validation'
       run: |
@@ -53,7 +53,7 @@ jobs:
         terraform validate
         terraform test -verbose
         echo "✅ Validation tests completed"
-    
+
     - name: Run Security Tests
       if: inputs.test_type == 'all' || inputs.test_type == 'security'
       run: |
@@ -63,7 +63,7 @@ jobs:
         sudo mv tfsec /usr/local/bin/
         tfsec .
         echo "✅ Security tests completed"
-    
+
     - name: Run Example Tests
       if: inputs.test_type == 'all' || inputs.test_type == 'examples'
       run: |
@@ -78,7 +78,7 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: us-east-1
       continue-on-error: true
-    
+
     - name: Test Summary
       run: |
         echo "## Test Summary"

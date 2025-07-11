@@ -94,7 +94,7 @@ And can be used in Terraform configurations like:
 module "ecs_contrast_agent_injection" {
   source = "contrast-security/ecs-contrast-agent-injection/aws"
   version = "1.0.0"
-  
+
   # Your configuration here
   enabled = true
   application_name = "my-app"

@@ -66,7 +66,7 @@ This module supports two authentication methods:
 ### Three-Key Authentication
 Uses separate API key, service key, and user name:
 - `contrast_api_key` - API key for Contrast agent authentication
-- `contrast_service_key` - Service key for the specific application profile  
+- `contrast_service_key` - Service key for the specific application profile
 - `contrast_user_name` - Agent user name for authentication
 
 ### Token Authentication

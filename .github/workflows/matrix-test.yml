@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        terraform-version: 
+        terraform-version:
           - "1.6.7"  # Minimum supported version
           - "1.7.6"
           - "1.8.6"  # Current stable
@@ -26,7 +26,7 @@ jobs:
           - "1.11.4"
           - "1.12.2"
           - "latest" # Latest available
-    
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -71,7 +71,7 @@ jobs:
         aws-provider-version:
           - "5.100.0"
           - "6.3.0"
-    
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4

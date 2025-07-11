@@ -9,37 +9,37 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    
+
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
         terraform_version: "1.12.2"
-    
+
     - name: Terraform Format Check
       run: terraform fmt -check -recursive .
-    
+
     - name: Terraform Init
       run: terraform init
-    
+
     - name: Terraform Validate
       run: terraform validate
-    
+
     - name: Terraform Test
       run: terraform test -verbose
       continue-on-error: true
-    
+
     - name: Install terraform-docs
       run: |
         curl -Lo terraform-docs.tar.gz https://github.com/terraform-docs/terraform-docs/releases/download/v0.16.0/terraform-docs-v0.16.0-linux-amd64.tar.gz
         tar -xzf terraform-docs.tar.gz
         sudo mv terraform-docs /usr/local/bin/
-    
+
     - name: Generate Documentation
       run: |
         terraform-docs markdown . > TERRAFORM_DOCS.md
@@ -47,7 +47,7 @@ jobs:
         git config --local user.name "GitHub Action"
         git add TERRAFORM_DOCS.md
         git diff --staged --quiet || git commit -m "Update Terraform documentation"
-    
+
     - name: Push Documentation Updates
       if: github.ref_type == 'tag'
       run: |
@@ -56,13 +56,13 @@ jobs:
         else
           git push origin HEAD:main
         fi
-    
+
     - name: Generate Changelog
       id: changelog
       uses: mikepenz/release-changelog-builder-action@v4
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-    
+
     - name: Create Release
       uses: actions/create-release@v1
       env:
@@ -72,29 +72,29 @@ jobs:
         release_name: Release ${{ github.ref_name }}
         body: |
           ## Changes
-          
+
           ${{ steps.changelog.outputs.changelog }}
-          
+
           ## Terraform Module
-          
+
           This release publishes the module to the Terraform Registry.
-          
+
           ### Usage
-          
+
           ```hcl
           module "ecs_contrast_agent_injection" {
             source = "contrast-security/ecs-contrast-agent-injection/aws"
             version = "${{ github.ref_name }}"
-            
+
             # Your configuration here
             enabled = true
             application_name = "my-app"
             # ... other variables
           }
           ```
-          
+
           ### What's Changed
-          
+
           See the [CHANGELOG.md](CHANGELOG.md) for detailed changes.
         draft: false
         prerelease: false
@@ -104,14 +104,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: release
     if: always()
-    
+
     steps:
     - name: Notify on Success
       if: needs.release.result == 'success'
       run: |
         echo "✅ Successfully published version ${{ github.ref_name }} to Terraform Registry"
         echo "Module available at: https://registry.terraform.io/modules/contrast-security/ecs-contrast-agent-injection/aws"
-    
+
     - name: Notify on Failure
       if: needs.release.result == 'failure'
       run: |
