@@ -144,6 +144,8 @@ jobs:
 
     - name: Init TFLint
       run: tflint --init
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Run TFLint
       run: tflint --format=compact
