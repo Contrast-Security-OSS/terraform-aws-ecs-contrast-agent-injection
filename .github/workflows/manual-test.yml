@@ -69,13 +69,13 @@ jobs:
         terraform fmt -check -recursive .
         terraform init
         terraform validate
-        
+
         # Run tests with verbose output
         terraform test -verbose
-        
+
         # Generate test report (reuse the same provider setup)
         terraform test -junit-xml=test-results.xml
-        
+
         echo "✅ Validation tests completed"
       continue-on-error: true
 
@@ -95,10 +95,10 @@ jobs:
           secret_key                  = "test"
         }
         EOF
-        
+
         # Initialize Terraform for security scan
         terraform init
-        
+
         # Install tfsec
         curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
         sudo mv tfsec /usr/local/bin/
@@ -109,12 +109,12 @@ jobs:
       if: inputs.test_type == 'all' || inputs.test_type == 'examples'
       run: |
         echo "📋 Running Example Tests..."
-        
+
         # Validate Examples
         for example in examples/*/; do
           echo "Validating $example"
           cd "$example"
-          
+
           # Setup mock provider for example
           cat > provider_override.tf << 'EOF'
         provider "aws" {
@@ -127,16 +127,16 @@ jobs:
           secret_key                  = "test"
         }
         EOF
-          
+
           terraform init
           terraform validate
           terraform plan
-          
+
           # Cleanup
           rm -f provider_override.tf
           cd - > /dev/null
         done
-        
+
         echo "✅ Example tests completed"
       continue-on-error: true
 
