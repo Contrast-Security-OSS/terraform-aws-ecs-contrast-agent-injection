@@ -4,8 +4,8 @@
 
 set -e
 
-REPO_OWNER="contrast-security"
-REPO_NAME="ecs-contrast-agent-injection"
+REPO_OWNER="Contrast-Security-OSS"
+REPO_NAME="terraform-aws-ecs-contrast-agent-injection"
 
 echo "🔍 Checking GitHub Actions status for $REPO_OWNER/$REPO_NAME..."
 echo

@@ -1,11 +1,11 @@
 # Terraform AWS ECS Contrast Agent Injection
 
-[![Terraform Registry](https://img.shields.io/badge/terraform-registry-blue.svg)](https://registry.terraform.io/modules/Contrast-Security-OSS/terraform-aws-ecs-contrast-agent-injection/aws)
+[![Terraform Registry](https://img.shields.io/badge/terraform-registry-blue.svg)](https://registry.terraform.io/modules/Contrast-Security-OSS/ecs-contrast-agent-injection/aws)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Tests](https://github.com/contrast-security/ecs-contrast-agent-injection/workflows/Test/badge.svg)](https://github.com/contrast-security/ecs-contrast-agent-injection/actions/workflows/test.yml)
-[![Security](https://github.com/contrast-security/ecs-contrast-agent-injection/workflows/Pre-commit%20Checks/badge.svg)](https://github.com/contrast-security/ecs-contrast-agent-injection/actions/workflows/pre-commit.yml)
-[![Release](https://github.com/contrast-security/ecs-contrast-agent-injection/workflows/Terraform%20Registry%20Publish/badge.svg)](https://github.com/contrast-security/ecs-contrast-agent-injection/actions/workflows/terraform-registry-publish.yml)
-[![Matrix Test](https://github.com/contrast-security/ecs-contrast-agent-injection/workflows/Matrix%20Test/badge.svg)](https://github.com/contrast-security/ecs-contrast-agent-injection/actions/workflows/matrix-test.yml)
+[![Tests](https://github.com/Contrast-Security-OSS/terraform-aws-ecs-contrast-agent-injection/workflows/Test/badge.svg)](https://github.com/Contrast-Security-OSS/terraform-aws-ecs-contrast-agent-injection/actions/workflows/test.yml)
+[![Security](https://github.com/Contrast-Security-OSS/terraform-aws-ecs-contrast-agent-injection/workflows/Pre-commit%20Checks/badge.svg)](https://github.com/Contrast-Security-OSS/terraform-aws-ecs-contrast-agent-injection/actions/workflows/pre-commit.yml)
+[![Release](https://github.com/Contrast-Security-OSS/terraform-aws-ecs-contrast-agent-injection/workflows/Terraform%20Registry%20Publish/badge.svg)](https://github.com/Contrast-Security-OSS/terraform-aws-ecs-contrast-agent-injection/actions/workflows/terraform-registry-publish.yml)
+[![Matrix Test](https://github.com/Contrast-Security-OSS/terraform-aws-ecs-contrast-agent-injection/workflows/Matrix%20Test/badge.svg)](https://github.com/Contrast-Security-OSS/terraform-aws-ecs-contrast-agent-injection/actions/workflows/matrix-test.yml)
 
 A Terraform module for deploying the Contrast Security agent to Amazon ECS tasks using an agent injection pattern with init containers and shared volumes.
 
@@ -29,7 +29,7 @@ This module implements a production-ready agent injection pattern for deploying 
 
 ```hcl
 module "contrast_agent_injection" {
-  source  = "Contrast-Security-OSS/terraform-aws-ecs-contrast-agent-injection/aws"
+  source  = "Contrast-Security-OSS/ecs-contrast-agent-injection/aws"
   version = ">= 1.0"
 
   enabled              = true
@@ -47,7 +47,7 @@ module "contrast_agent_injection" {
 
 ```hcl
 module "contrast_agent_injection" {
-  source  = "Contrast-Security-OSS/terraform-aws-ecs-contrast-agent-injection/aws"
+  source  = "Contrast-Security-OSS/ecs-contrast-agent-injection/aws"
   version = ">= 1.0"
 
   enabled              = true

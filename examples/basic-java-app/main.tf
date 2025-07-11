@@ -260,7 +260,8 @@ resource "aws_security_group" "app" {
 
 # Contrast Agent Injection Module
 module "contrast_agent_injection" {
-  source = "../.."
+  source  = "Contrast-Security-OSS/ecs-contrast-agent-injection/aws"
+  version = "~> 1.0"
 
   enabled                = var.contrast_enabled
   agent_type             = "java"
