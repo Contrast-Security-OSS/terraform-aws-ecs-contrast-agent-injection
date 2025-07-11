@@ -56,11 +56,24 @@ jobs:
       with:
         terraform_version: ${{ env.TF_VERSION }}
 
-    - name: Terraform Init
-      run: terraform init
+    - name: Setup mock AWS provider for tests
+      run: |
+        cat > tests/provider_override.tf << 'EOF'
+        provider "aws" {
+          region                      = "us-east-1"
+          skip_credentials_validation = true
+          skip_requesting_account_id  = true
+          skip_metadata_api_check     = true
+          access_key                  = "test"
+          secret_key                  = "test"
+        }
+        EOF
 
     - name: Run Terraform Tests
       run: terraform test -verbose
+
+    - name: Cleanup mock provider
+      run: rm -f tests/provider_override.tf
 
     - name: Generate Test Report
       if: always()
