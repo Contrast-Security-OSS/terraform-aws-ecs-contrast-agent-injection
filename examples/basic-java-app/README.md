@@ -71,7 +71,7 @@ terraform destroy
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_contrast_agent_injection"></a> [contrast\_agent\_injection](#module\_contrast\_agent\_injection) | ../.. | n/a |
+| <a name="module_contrast_agent_injection"></a> [contrast\_agent\_injection](#module\_contrast\_agent\_injection) | Contrast-Security-OSS/ecs-contrast-agent-injection/aws | ~> 1.0 |
 
 ## Resources
 

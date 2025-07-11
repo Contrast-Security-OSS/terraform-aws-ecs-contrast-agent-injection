@@ -71,7 +71,7 @@ No providers.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_contrast_agent_injection_with_proxy"></a> [contrast\_agent\_injection\_with\_proxy](#module\_contrast\_agent\_injection\_with\_proxy) | ../.. | n/a |
+| <a name="module_contrast_agent_injection_with_proxy"></a> [contrast\_agent\_injection\_with\_proxy](#module\_contrast\_agent\_injection\_with\_proxy) | Contrast-Security-OSS/ecs-contrast-agent-injection/aws | ~> 1.0 |
 
 ## Resources
 
