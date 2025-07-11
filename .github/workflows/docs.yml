@@ -37,7 +37,7 @@ jobs:
         for example in examples/*/; do
           if [ -f "$example/README.md" ]; then
             echo "Updating documentation for $example"
-            terraform-docs markdown "$example" --output-file "$example/README.md" --output-mode inject
+            (cd "$example" && terraform-docs markdown . --output-file README.md --output-mode inject)
           fi
         done
 
