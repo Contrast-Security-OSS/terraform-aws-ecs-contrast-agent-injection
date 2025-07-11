@@ -39,6 +39,20 @@ jobs:
     - name: Display Terraform Version
       run: terraform version
 
+    - name: Setup mock AWS provider for tests
+      run: |
+        cat > provider_override.tf << 'EOF'
+        provider "aws" {
+          region                      = "us-east-1"
+          skip_credentials_validation = true
+          skip_requesting_account_id  = true
+          skip_metadata_api_check     = true
+          skip_region_validation      = true
+          access_key                  = "test"
+          secret_key                  = "test"
+        }
+        EOF
+
     - name: Terraform Init
       run: terraform init
 
@@ -50,6 +64,10 @@ jobs:
 
     - name: Run Terraform Tests
       run: terraform test -verbose
+
+    - name: Cleanup mock provider
+      if: always()
+      run: rm -f provider_override.tf
 
     - name: Test Examples
       run: |
@@ -95,6 +113,20 @@ jobs:
         }
         EOF
 
+    - name: Setup mock AWS provider for tests
+      run: |
+        cat > provider_override.tf << 'EOF'
+        provider "aws" {
+          region                      = "us-east-1"
+          skip_credentials_validation = true
+          skip_requesting_account_id  = true
+          skip_metadata_api_check     = true
+          skip_region_validation      = true
+          access_key                  = "test"
+          secret_key                  = "test"
+        }
+        EOF
+
     - name: Terraform Init with specific AWS provider
       run: |
         mv versions.tf versions_original.tf
@@ -107,6 +139,8 @@ jobs:
     - name: Run Terraform Tests
       run: terraform test
 
-    - name: Restore original versions.tf
+    - name: Cleanup mock provider and restore original versions.tf
+      if: always()
       run: |
+        rm -f provider_override.tf
         mv versions_original.tf versions.tf
