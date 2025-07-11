@@ -7,7 +7,7 @@ terraform {
 
 module "contrast_agent_injection_with_proxy" {
   source  = "Contrast-Security-OSS/ecs-contrast-agent-injection/aws"
-  version = ">= 1.0"
+  version = "~> 1.0"
 
   enabled                = true
   application_name       = "my-java-service"
