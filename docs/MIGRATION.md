@@ -56,6 +56,9 @@ java -jar app.jar
 ### Phase 2: Infrastructure Setup
 
 #### 2.1 Deploy Terraform Module
+
+> **Note**: The source format has changed from Git URL to Terraform Registry format. This provides better version management and enables automatic updates through Terraform Registry.
+
 ```hcl
 module "contrast_agent_injection" {
   source  = "Contrast-Security-OSS/ecs-contrast-agent-injection/aws"
