@@ -76,7 +76,18 @@ jobs:
           cd "$example"
           terraform init
           terraform validate
-          terraform plan -out=tfplan
+          # Use -var-file with example values or provide required variables
+          if [ -f "terraform.tfvars.example" ]; then
+            cp terraform.tfvars.example terraform.tfvars
+          fi
+          # Provide minimal required variables to prevent hanging
+          terraform plan -out=tfplan \
+            -var="app_image=nginx:latest" \
+            -var="contrast_enabled=false" \
+            -var="contrast_api_url=https://app.contrastsecurity.com/Contrast" \
+            -var="contrast_api_key=dummy" \
+            -var="contrast_service_key=dummy" \
+            -var="contrast_user_name=dummy@example.com"
           cd - > /dev/null
         done
 
