@@ -56,27 +56,17 @@ jobs:
       with:
         terraform_version: ${{ env.TF_VERSION }}
 
-    - name: Setup mock AWS provider for tests
+    - name: Setup mock AWS credentials
       run: |
-        cat > tests/provider_override.tf << 'EOF'
-        provider "aws" {
-          region                      = "us-east-1"
-          skip_credentials_validation = true
-          skip_requesting_account_id  = true
-          skip_metadata_api_check     = true
-          access_key                  = "test"
-          secret_key                  = "test"
-        }
-        EOF
+        echo "AWS_ACCESS_KEY_ID=test" >> $GITHUB_ENV
+        echo "AWS_SECRET_ACCESS_KEY=test" >> $GITHUB_ENV
+        echo "AWS_DEFAULT_REGION=us-east-1" >> $GITHUB_ENV
 
     - name: Terraform Init
       run: terraform init
 
     - name: Run Terraform Tests
       run: terraform test -verbose
-
-    - name: Cleanup mock provider
-      run: rm -f tests/provider_override.tf
 
     - name: Generate Test Report
       if: always()
