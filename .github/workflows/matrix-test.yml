@@ -118,7 +118,7 @@ jobs:
 
     - name: Terraform Init with specific AWS provider
       run: |
-        mv versions.tf versions_original.tf
+        cp versions.tf versions_original.tf
         mv versions_test.tf versions.tf
         terraform init
 
