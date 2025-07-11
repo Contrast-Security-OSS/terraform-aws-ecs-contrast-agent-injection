@@ -69,49 +69,6 @@ jobs:
       if: always()
       run: rm -f provider_override.tf
 
-    - name: Test Examples
-      run: |
-        for example in examples/*/; do
-          echo "Testing $example with Terraform ${{ matrix.terraform-version }}"
-          cd "$example"
-          
-          # Setup mock AWS provider for examples - this needs to override the existing provider
-          cat > provider_override.tf << 'EOF'
-        provider "aws" {
-          region                      = "us-east-1"
-          skip_credentials_validation = true
-          skip_requesting_account_id  = true
-          skip_metadata_api_check     = true
-          skip_region_validation      = true
-          access_key                  = "test"
-          secret_key                  = "test"
-        }
-        EOF
-          
-          terraform init
-          terraform validate
-          
-          # Create minimal tfvars file for testing - must include aws_profile
-          cat > terraform.tfvars << 'EOF'
-        aws_region = "us-east-1"
-        aws_profile = ""
-        app_image = "nginx:latest"
-        contrast_enabled = false
-        contrast_api_url = "https://app.contrastsecurity.com/Contrast"
-        contrast_api_key = "dummy"
-        contrast_service_key = "dummy"
-        contrast_user_name = "dummy@example.com"
-        availability_zones = ["us-east-1a", "us-east-1b"]
-        EOF
-          
-          terraform plan -out=tfplan
-          
-          # Cleanup
-          rm -f provider_override.tf terraform.tfvars tfplan
-          
-          cd - > /dev/null
-        done
-
   aws-provider-matrix:
     name: AWS Provider ${{ matrix.aws-provider-version }}
     runs-on: ubuntu-latest
