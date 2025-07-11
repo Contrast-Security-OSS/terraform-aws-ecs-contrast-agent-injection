@@ -164,11 +164,16 @@ jobs:
 
     - name: Check documentation is up to date
       run: |
-        terraform-docs markdown . > README_GENERATED.md
-        if ! diff -q README.md README_GENERATED.md > /dev/null; then
-          echo "Documentation is out of date. Please run 'terraform-docs markdown . > README.md'"
-          echo "Differences:"
-          diff README.md README_GENERATED.md
+        # Generate docs and capture output
+        terraform-docs markdown table --output-file README_TEMP.md --output-mode inject .
+        
+        # Compare the generated section with current README
+        if ! diff -u README.md README_TEMP.md > /dev/null; then
+          echo "Documentation is out of date. Please run 'terraform-docs markdown table --output-file README.md --output-mode inject .'"
+          echo "Differences found:"
+          diff -u README.md README_TEMP.md || true
           exit 1
         fi
+        
         echo "Documentation is up to date"
+        rm -f README_TEMP.md
