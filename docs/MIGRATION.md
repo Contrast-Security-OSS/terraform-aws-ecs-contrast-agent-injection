@@ -58,7 +58,7 @@ java -jar app.jar
 #### 2.1 Deploy Terraform Module
 ```hcl
 module "contrast_agent_injection" {
-  source = "git::https://github.com/Contrast-Security-OSS/terraform-aws-ecs-contrast-agent-injection.git?ref=v1.0.0"
+  source = "Contrast-Security-OSS/ecs-contrast-agent-injection/aws"
 
   enabled              = false  # Start disabled
   application_name     = "my-app"

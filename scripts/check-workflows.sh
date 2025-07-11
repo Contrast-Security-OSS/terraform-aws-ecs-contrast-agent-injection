@@ -4,7 +4,7 @@
 
 set -e
 
-REPO_OWNER="contrast-security"
+REPO_OWNER="Contrast-Security-OSS"
 REPO_NAME="ecs-contrast-agent-injection"
 
 echo "🔍 Checking GitHub Actions status for $REPO_OWNER/$REPO_NAME..."

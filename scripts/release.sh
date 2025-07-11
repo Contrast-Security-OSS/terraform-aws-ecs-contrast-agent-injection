@@ -146,9 +146,9 @@ print_success "Release $TAG created successfully!"
 echo
 echo "🎉 Release process initiated!"
 echo "📋 Next steps:"
-echo "  1. Check GitHub Actions: https://github.com/contrast-security/ecs-contrast-agent-injection/actions"
-echo "  2. Monitor release creation: https://github.com/contrast-security/ecs-contrast-agent-injection/releases"
-echo "  3. Verify module publication: https://registry.terraform.io/modules/contrast-security/ecs-contrast-agent-injection/aws"
+echo "  1. Check GitHub Actions: https://github.com/Contrast-Security-OSS/ecs-contrast-agent-injection/actions"
+echo "  2. Monitor release creation: https://github.com/Contrast-Security-OSS/ecs-contrast-agent-injection/releases"
+echo "  3. Verify module publication: https://registry.terraform.io/modules/Contrast-Security-OSS/ecs-contrast-agent-injection/aws"
 echo
 echo "📞 If issues occur:"
 echo "  - Check workflow logs in GitHub Actions"

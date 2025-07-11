@@ -83,7 +83,7 @@ jobs:
 
           ```hcl
           module "ecs_contrast_agent_injection" {
-            source = "contrast-security/ecs-contrast-agent-injection/aws"
+            source = "Contrast-Security-OSS/ecs-contrast-agent-injection/aws"
             version = "${{ github.ref_name }}"
 
             # Your configuration here
@@ -110,7 +110,7 @@ jobs:
       if: needs.release.result == 'success'
       run: |
         echo "✅ Successfully published version ${{ github.ref_name }} to Terraform Registry"
-        echo "Module available at: https://registry.terraform.io/modules/contrast-security/ecs-contrast-agent-injection/aws"
+        echo "Module available at: https://registry.terraform.io/modules/Contrast-Security-OSS/ecs-contrast-agent-injection/aws"
 
     - name: Notify on Failure
       if: needs.release.result == 'failure'

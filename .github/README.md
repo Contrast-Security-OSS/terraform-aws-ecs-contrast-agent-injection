@@ -86,13 +86,13 @@ To publish a new version to the Terraform Registry:
 ### Registry Publication
 Once published, the module will be available at:
 ```
-https://registry.terraform.io/modules/contrast-security/ecs-contrast-agent-injection/aws
+https://registry.terraform.io/modules/Contrast-Security-OSS/ecs-contrast-agent-injection/aws
 ```
 
 And can be used in Terraform configurations like:
 ```hcl
 module "ecs_contrast_agent_injection" {
-  source = "contrast-security/ecs-contrast-agent-injection/aws"
+  source = "Contrast-Security-OSS/ecs-contrast-agent-injection/aws"
   version = "1.0.0"
 
   # Your configuration here
