@@ -15,24 +15,12 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
     
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.13'
-    
-    - name: Install pre-commit
-      run: |
-        pip install pre-commit
-        pre-commit install
-    
-    - name: Run pre-commit
-      run: pre-commit run --all-files
-      continue-on-error: true
-    
     - name: Check for trailing whitespace
       run: |
         if grep -r '[[:space:]]$' --include="*.tf" --include="*.md" --include="*.yml" --include="*.yaml" .; then
           echo "❌ Found trailing whitespace"
+          echo "Files with trailing whitespace:"
+          grep -r '[[:space:]]$' --include="*.tf" --include="*.md" --include="*.yml" --include="*.yaml" . | head -20
           exit 1
         else
           echo "✅ No trailing whitespace found"
@@ -60,11 +48,10 @@ jobs:
     - name: Summary
       run: |
         echo "## Pre-commit Check Summary"
-        echo "- ✅ Pre-commit hooks executed"
         echo "- ✅ Trailing whitespace checked"
         echo "- ✅ Large files checked"
         echo "- ✅ Line endings checked"
         echo ""
-        echo "Code quality checks completed!"
+        echo "Basic code quality checks completed!"
         echo ""
         echo "Note: Core validation (format, syntax, tests, security) will be handled by the main CI workflow."
