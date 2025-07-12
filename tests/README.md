@@ -60,6 +60,40 @@ The tests are organized into several files, each focusing on specific aspects of
    - Resource limits validation
    - Boolean variable handling
 
+10. **`token_authentication.tftest.hcl`** - Tests token authentication functionality
+   - Token-based authentication validation
+   - Token authentication environment variable setup
+   - Authentication method detection
+
+11. **`validation_failure_tests.tftest.hcl`** - Tests validation failures with invalid inputs
+   - Invalid environment values (should fail)
+   - Invalid log levels (should fail)
+   - CPU/memory values outside valid ranges (should fail)
+   - Invalid agent versions and proxy configurations (should fail)
+   - Invalid agent types and proxy auth types (should fail)
+
+12. **`boundary_value_tests.tftest.hcl`** - Tests boundary values and edge cases
+   - Minimum and maximum valid CPU/memory values
+   - Case variations in environment and log level values
+   - Semantic version patterns and multi-digit versions
+   - Proxy port boundary values and different schemes
+   - All supported proxy authentication types
+
+13. **`output_validation_tests.tftest.hcl`** - Tests output accuracy and completeness
+   - Output value accuracy with different configurations
+   - Sensitive output handling
+   - Output structure validation for containers, volumes, and dependencies
+   - Null value handling for disabled and empty configurations
+   - Environment variables and mount points output structure
+
+14. **`aws_regional_tests.tftest.hcl`** - Tests AWS-specific and regional functionality
+   - Server name generation with region information
+   - AWS region data source usage
+   - Log configuration with region settings
+   - Init container environment variables and mount points
+   - Agent image selection and activation configuration
+   - Java-specific environment variables and settings
+
 ## Running Tests
 
 ### Prerequisites
