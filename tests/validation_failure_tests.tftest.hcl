@@ -43,14 +43,14 @@ run "init_container_cpu_below_minimum_should_fail" {
   command = plan
 
   variables {
-    enabled               = true
-    application_name      = "cpu-below-min-test"
-    contrast_api_key      = "test-key"
-    contrast_service_key  = "test-service"
-    contrast_user_name    = "test-user"
-    environment           = "DEVELOPMENT"
-    log_group_name        = "test-log-group"
-    init_container_cpu    = 1 # Below minimum of 2
+    enabled              = true
+    application_name     = "cpu-below-min-test"
+    contrast_api_key     = "test-key"
+    contrast_service_key = "test-service"
+    contrast_user_name   = "test-user"
+    environment          = "DEVELOPMENT"
+    log_group_name       = "test-log-group"
+    init_container_cpu   = 1 # Below minimum of 2
   }
 
   # This should fail validation
@@ -63,14 +63,14 @@ run "init_container_cpu_above_maximum_should_fail" {
   command = plan
 
   variables {
-    enabled               = true
-    application_name      = "cpu-above-max-test"
-    contrast_api_key      = "test-key"
-    contrast_service_key  = "test-service"
-    contrast_user_name    = "test-user"
-    environment           = "DEVELOPMENT"
-    log_group_name        = "test-log-group"
-    init_container_cpu    = 4097 # Above maximum of 4096
+    enabled              = true
+    application_name     = "cpu-above-max-test"
+    contrast_api_key     = "test-key"
+    contrast_service_key = "test-service"
+    contrast_user_name   = "test-user"
+    environment          = "DEVELOPMENT"
+    log_group_name       = "test-log-group"
+    init_container_cpu   = 4097 # Above maximum of 4096
   }
 
   # This should fail validation

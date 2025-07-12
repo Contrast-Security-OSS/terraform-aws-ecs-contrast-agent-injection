@@ -66,11 +66,11 @@ run "output_validation_with_proxy" {
   command = plan
 
   variables {
-    enabled              = true
-    application_name     = "output-proxy-test"
-    contrast_api_token   = "test-token"
-    environment          = "DEVELOPMENT"
-    log_group_name       = "test-log-group"
+    enabled            = true
+    application_name   = "output-proxy-test"
+    contrast_api_token = "test-token"
+    environment        = "DEVELOPMENT"
+    log_group_name     = "test-log-group"
     proxy_settings = {
       host = "proxy.example.com"
       port = 8080
@@ -92,10 +92,10 @@ run "output_validation_when_disabled" {
   command = plan
 
   variables {
-    enabled            = false
-    application_name   = "output-disabled-test"
-    environment        = "DEVELOPMENT"
-    log_group_name     = "test-log-group"
+    enabled          = false
+    application_name = "output-disabled-test"
+    environment      = "DEVELOPMENT"
+    log_group_name   = "test-log-group"
   }
 
   # When disabled, most outputs should be null
@@ -208,13 +208,13 @@ run "output_empty_optional_values" {
   command = plan
 
   variables {
-    enabled                      = true
-    application_name             = "output-empty-values-test"
-    contrast_api_key             = "test-key"
-    contrast_service_key         = "test-service"
-    contrast_user_name           = "test-user"
-    environment                  = "DEVELOPMENT"
-    log_group_name               = "test-log-group"
+    enabled              = true
+    application_name     = "output-empty-values-test"
+    contrast_api_key     = "test-key"
+    contrast_service_key = "test-service"
+    contrast_user_name   = "test-user"
+    environment          = "DEVELOPMENT"
+    log_group_name       = "test-log-group"
     # All optional values left empty
     application_group            = ""
     application_code             = ""
