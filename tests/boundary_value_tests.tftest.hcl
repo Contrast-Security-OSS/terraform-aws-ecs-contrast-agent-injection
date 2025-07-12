@@ -4,14 +4,14 @@ run "init_container_cpu_minimum_boundary" {
   command = plan
 
   variables {
-    enabled               = true
-    application_name      = "cpu-min-boundary-test"
-    contrast_api_key      = "test-key"
-    contrast_service_key  = "test-service"
-    contrast_user_name    = "test-user"
-    environment           = "DEVELOPMENT"
-    log_group_name        = "test-log-group"
-    init_container_cpu    = 2 # Minimum valid value
+    enabled              = true
+    application_name     = "cpu-min-boundary-test"
+    contrast_api_key     = "test-key"
+    contrast_service_key = "test-service"
+    contrast_user_name   = "test-user"
+    environment          = "DEVELOPMENT"
+    log_group_name       = "test-log-group"
+    init_container_cpu   = 2 # Minimum valid value
   }
 
   assert {
@@ -24,14 +24,14 @@ run "init_container_cpu_maximum_boundary" {
   command = plan
 
   variables {
-    enabled               = true
-    application_name      = "cpu-max-boundary-test"
-    contrast_api_key      = "test-key"
-    contrast_service_key  = "test-service"
-    contrast_user_name    = "test-user"
-    environment           = "DEVELOPMENT"
-    log_group_name        = "test-log-group"
-    init_container_cpu    = 4096 # Maximum valid value
+    enabled              = true
+    application_name     = "cpu-max-boundary-test"
+    contrast_api_key     = "test-key"
+    contrast_service_key = "test-service"
+    contrast_user_name   = "test-user"
+    environment          = "DEVELOPMENT"
+    log_group_name       = "test-log-group"
+    init_container_cpu   = 4096 # Maximum valid value
   }
 
   assert {
