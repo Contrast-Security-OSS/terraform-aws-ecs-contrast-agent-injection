@@ -116,6 +116,9 @@ jobs:
         working_directory: .
         format: sarif
         soft_fail: true
+        version: latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload SARIF file
       if: always()
