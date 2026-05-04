@@ -6,19 +6,30 @@ on:
     - cron: '0 9 * * 1'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   update-terraform-providers:
+    permissions:
+      contents: write  # for peter-evans/create-pull-request to create branch
+      pull-requests: write  # for peter-evans/create-pull-request to create a PR
     name: Update Terraform Providers
     runs-on: ubuntu-latest
 
     steps:
+    - name: Harden the runner (Audit all outbound calls)
+      uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+      with:
+        egress-policy: audit
+
     - name: Checkout
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
       with:
         terraform_version: "1.12.2"
 
@@ -44,7 +55,7 @@ jobs:
 
     - name: Create Pull Request
       if: steps.update_check.outputs.updates_available == 'true'
-      uses: peter-evans/create-pull-request@v6
+      uses: step-security/create-pull-request@e604d57b37b404d8bb34d152fa905e45d003a895 # v8.1.0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         commit-message: "chore: update terraform provider dependencies"

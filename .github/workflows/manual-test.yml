@@ -24,17 +24,25 @@ on:
         default: false
         type: boolean
 
+permissions:
+  contents: read
+
 jobs:
   manual-test:
     name: Manual Test
     runs-on: ubuntu-latest
 
     steps:
+    - name: Harden the runner (Audit all outbound calls)
+      uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+      with:
+        egress-policy: audit
+
     - name: Checkout Code
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
     - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
       with:
         terraform_version: "~${{ inputs.terraform_version }}"
 
@@ -110,7 +118,7 @@ jobs:
 
     - name: Upload Test Results
       if: always() && (inputs.test_type == 'all' || inputs.test_type == 'validation')
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       with:
         name: manual-test-results
         path: test-results.xml
