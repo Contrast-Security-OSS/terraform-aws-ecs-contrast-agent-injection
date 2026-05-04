@@ -17,13 +17,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Harden the runner (Audit all outbound calls)
+      uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+      with:
+        egress-policy: audit
+
     - name: Checkout
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Setup terraform-docs
-      uses: jaxxstorm/action-install-gh-release@v1.12.0
+      uses: jaxxstorm/action-install-gh-release@25d5e2dd555cd74f1fab9ac1e6ea117acde2c0c4 # v1.12.0
       with:
         repo: terraform-docs/terraform-docs
         tag: v0.20.0
